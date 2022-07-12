@@ -15,4 +15,6 @@ fn main() {
     let e = c + d;
     println!("Hello, world! {}", e);
 
+    test();
+
 }

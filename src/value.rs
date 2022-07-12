@@ -15,14 +15,6 @@ pub enum Value {
     BigDecimal(BigDecimal)
 }
 
-fn toto<T: 'static>() -> bool {
-    let a = TypeId::of::<Value>();
-    match TypeId::of::<T>() {
-        a => true,
-        _ => false
-    }
-}
-
 impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", format!("{:?}", self).to_lowercase())
@@ -84,4 +76,10 @@ impl Add for Value {
             },
         }
     }
+}
+
+pub fn test() {
+    let a = Value::Int8(3);
+    let b = Value::Float(4.0);
+    println!("{}", a + b);
 }
