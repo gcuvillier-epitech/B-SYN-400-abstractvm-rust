@@ -96,10 +96,3 @@ impl Add for Value {
         }
     }
 }
-
-pub fn test() {
-    let a = Value::Int8(3);
-    let b = Value::Float(4.0);
-    let c = a + b;
-    println!("{} {:?}", c, c);
-}
