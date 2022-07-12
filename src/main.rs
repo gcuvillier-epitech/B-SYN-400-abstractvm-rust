@@ -1,19 +1,17 @@
 use opcode::*;
+use std::panic;
 use value::*;
 
 mod opcode;
 mod value;
 
 fn main() {
-    let a = OpCode::Push;
-    let b = op_code_needs_value(a);
-    let c = Value::Int16(3);
-    println!("Hello, world! {} {}", b, c);
-
-    let d = Value::Int8(4);
-
-    let e = c + d;
-    println!("Hello, world! {}", e);
-
-    test();
+    let result = panic::catch_unwind(|| {
+        println!("{:?}", parse_value("   int8      ( 127 )   "))
+    });
+    if result.is_ok() {
+        std::process::exit(0);
+    } else {
+        std::process::exit(84);
+    }
 }

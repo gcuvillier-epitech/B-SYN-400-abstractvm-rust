@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::{Debug, Display, Formatter, Result};
 
 #[allow(dead_code)]
 #[derive(Copy, Clone)]
@@ -22,14 +22,14 @@ pub enum OpCode {
     Exit,
 }
 
-impl fmt::Display for OpCode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for OpCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "{}", format!("{:?}", self))
     }
 }
 
-impl fmt::Debug for OpCode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Debug for OpCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
             OpCode::Noop => write!(f, "noop"),
             OpCode::Push => write!(f, "push"),
@@ -59,5 +59,28 @@ pub fn op_code_needs_value(op: OpCode) -> bool {
         OpCode::Load => true,
         OpCode::Store => true,
         _ => false
+    }
+}
+
+pub fn parse_op_code(s: &str) -> OpCode {
+    match s {
+        "noop" => OpCode::Noop,
+        "push" => OpCode::Push,
+        "pop" => OpCode::Pop,
+        "dump" => OpCode::Dump,
+        "clear" => OpCode::Clear,
+        "dup" => OpCode::Dup,
+        "swap" => OpCode::Swap,
+        "assert" => OpCode::Assert,
+        "add" => OpCode::Add,
+        "sub" => OpCode::Sub,
+        "mul" => OpCode::Mul,
+        "div" => OpCode::Div,
+        "mod" => OpCode::Mod,
+        "load" => OpCode::Load,
+        "store" => OpCode::Store,
+        "print" => OpCode::Print,
+        "exit" => OpCode::Exit,
+        _ => panic!("unknown opcode")
     }
 }
