@@ -1,23 +1,42 @@
-use std::fmt;
-use std::ops::{Add};
 use bigdecimal::BigDecimal;
 use bigdecimal::FromPrimitive;
-use std::any::{Any, TypeId};
+
+use std::fmt;
+use std::ops::Add;
 
 #[allow(dead_code)]
-#[derive(Debug)]
 pub enum Value {
     Int8(i8),
     Int16(i16),
     Int32(i32),
     Float(f32),
     Double(f64),
-    BigDecimal(BigDecimal)
+    BigDecimal(BigDecimal),
 }
 
 impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", format!("{:?}", self).to_lowercase())
+        match self {
+            Value::Int8(arg) => write!(f, "{}", arg),
+            Value::Int16(arg) => write!(f, "{}", arg),
+            Value::Int32(arg) => write!(f, "{}", arg),
+            Value::Float(arg) => write!(f, "{}", arg),
+            Value::Double(arg) => write!(f, "{}", arg),
+            Value::BigDecimal(arg) => write!(f, "bigdecimal({})", arg),
+        }
+    }
+}
+
+impl fmt::Debug for Value {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Value::Int8(arg) => write!(f, "int8({})", arg),
+            Value::Int16(arg) => write!(f, "int16({})", arg),
+            Value::Int32(arg) => write!(f, "int32({})", arg),
+            Value::Float(arg) => write!(f, "float({})", arg),
+            Value::Double(arg) => write!(f, "double({})", arg),
+            Value::BigDecimal(arg) => write!(f, "bigdecimal({})", arg),
+        }
     }
 }
 
@@ -70,7 +89,7 @@ impl Add for Value {
                 Value::Int8(arg2) => Value::BigDecimal(arg1 + BigDecimal::from_i8(arg2).unwrap()),
                 Value::Int16(arg2) => Value::BigDecimal(arg1 + BigDecimal::from_i16(arg2).unwrap()),
                 Value::Int32(arg2) => Value::BigDecimal(arg1 + BigDecimal::from_i32(arg2).unwrap()),
-                Value::Float(arg2) => Value::BigDecimal(arg1  + BigDecimal::from_f32(arg2).unwrap()),
+                Value::Float(arg2) => Value::BigDecimal(arg1 + BigDecimal::from_f32(arg2).unwrap()),
                 Value::Double(arg2) => Value::BigDecimal(arg1 + BigDecimal::from_f64(arg2).unwrap()),
                 Value::BigDecimal(arg2) => Value::BigDecimal(arg1 + arg2),
             },
@@ -81,5 +100,6 @@ impl Add for Value {
 pub fn test() {
     let a = Value::Int8(3);
     let b = Value::Float(4.0);
-    println!("{}", a + b);
+    let c = a + b;
+    println!("{} {:?}", c, c);
 }

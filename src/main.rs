@@ -1,8 +1,8 @@
-mod opcode;
-mod value;
-
 use opcode::*;
 use value::*;
+
+mod opcode;
+mod value;
 
 fn main() {
     let a = OpCode::Push;
@@ -16,5 +16,4 @@ fn main() {
     println!("Hello, world! {}", e);
 
     test();
-
 }
