@@ -1,0 +1,9 @@
+push int32(3)
+dup
+add
+push float(4)
+swap
+sub
+dump
+exit
+
