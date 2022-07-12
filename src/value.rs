@@ -2,6 +2,7 @@ use std::fmt;
 use std::ops::{Add};
 use bigdecimal::BigDecimal;
 use bigdecimal::FromPrimitive;
+use std::any::{Any, TypeId};
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -12,6 +13,14 @@ pub enum Value {
     Float(f32),
     Double(f64),
     BigDecimal(BigDecimal)
+}
+
+fn toto<T: 'static>() -> bool {
+    let a = TypeId::of::<Value>();
+    match TypeId::of::<T>() {
+        a => true,
+        _ => false
+    }
 }
 
 impl fmt::Display for Value {
