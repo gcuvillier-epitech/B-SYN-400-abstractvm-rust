@@ -17,39 +17,62 @@ impl Process<'_> {
         let mut stop = false;
         for instruction in self.program {
             match instruction.code {
-                OpCode::Noop => {},
+                OpCode::Noop => {}
                 OpCode::Push => match &instruction.value {
                     Some(a) => st.push(a.clone()),
-                    None => panic!("stack underflow")
+                    None => panic!("logic error: no value for push")
                 },
                 OpCode::Pop => {
-                    if st.len() < 1 {
-                        panic!("stack underflow")
-                    } else {
-                        //st.pop()
+                    match st.pop() {
+                        Some(_) => {}
+                        None => panic!("stack underflow"),
                     }
-                },
-                OpCode::Dump => {},
-                OpCode::Clear => {},
-                OpCode::Dup => {},
-                OpCode::Swap => {},
-                OpCode::Assert => {},
+                }
+                OpCode::Dump => {}
+                OpCode::Clear => {
+                    st.drain(..);
+                }
+                OpCode::Dup => {
+                    match st.get(st.len() - 1) {
+                        Some(a) => st.push(a.clone()),
+                        _ => panic!("stack underflow"),
+                    }
+                }
+                OpCode::Swap => {
+                    match (st.pop(), st.pop()) {
+                        (Some(v1), Some(v2)) => {
+                            st.push(v1);
+                            st.push(v2);
+                        }
+                        _ => panic!("stack underflow"),
+                    }
+                }
+                OpCode::Assert => {
+                    match st.get(st.len() - 1) {
+                        Some(a) => {
+                            match &instruction.value {
+                                Some(b) => *a == *b,
+                                None => panic!("logic error: no value for assert"),
+                            }
+                        }
+                        _ => panic!("stack underflow"),
+                    };
+                }
                 OpCode::Add => {
-                    if st.len() < 2 {
-                        panic!("stack underflow")
-                    } else {
-                        let v1 = Value::Int8(0);//stack.pop();
-                        let v2 = Value::Int8(0);//stack.pop();
-                        st.push(v1 + v2);
+                    match (st.pop(), st.pop()) {
+                        (Some(v1), Some(v2)) => {
+                            st.push(v1 + v2);
+                        }
+                        _ => panic!("stack underflow"),
                     }
-                },
-                OpCode::Sub => {},
-                OpCode::Mul => {},
-                OpCode::Div => {},
-                OpCode::Mod => {},
-                OpCode::Load => {},
-                OpCode::Store => {},
-                OpCode::Print => {},
+                }
+                OpCode::Sub => {}
+                OpCode::Mul => {}
+                OpCode::Div => {}
+                OpCode::Mod => {}
+                OpCode::Load => {}
+                OpCode::Store => {}
+                OpCode::Print => {}
                 OpCode::Exit => stop = true,
             }
             if stop {

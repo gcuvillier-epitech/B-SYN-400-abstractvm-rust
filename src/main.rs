@@ -1,5 +1,6 @@
 use program::*;
 use std::panic;
+use value::*;
 use vm::*;
 
 mod opcode;
@@ -18,6 +19,10 @@ fn main() {
         let pid = vm.load_program(&p);
 
         vm.run_process(pid);
+
+        let a = Value::Int8(0);
+        let b = Value::Int16(0);
+        println!("{}", a == b);
     });
     if result.is_ok() {
         std::process::exit(0);

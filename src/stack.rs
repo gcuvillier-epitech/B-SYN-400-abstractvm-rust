@@ -1,3 +1,3 @@
-use crate::value;
+use crate::value::Value;
 
-pub type Stack = Vec<value::Value>;
+pub type Stack = Vec<Value>;
