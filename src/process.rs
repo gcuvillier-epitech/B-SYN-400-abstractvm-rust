@@ -33,7 +33,7 @@ impl Process<'_> {
                     st.drain(..);
                 }
                 OpCode::Dup => {
-                    match st.get(st.len() - 1) {
+                    match st.last() {
                         Some(a) => st.push(a.clone()),
                         _ => panic!("stack underflow"),
                     }
@@ -48,7 +48,7 @@ impl Process<'_> {
                     }
                 }
                 OpCode::Assert => {
-                    match st.get(st.len() - 1) {
+                    match st.last() {
                         Some(a) => {
                             match &instruction.value {
                                 Some(b) => *a == *b,
