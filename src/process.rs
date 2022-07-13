@@ -42,7 +42,7 @@ impl Process {
         }
 
         // Compute the instruction range to execute = from ip to min(program_len, ip+count)
-         let exec_instructions = &self.program[self.state.ip..min(self.program.len(), self.state.ip + count)];
+        let exec_instructions = &self.program[self.state.ip..min(self.program.len(), self.state.ip + count)];
 
         // Execute each instruction in the range
         for instruction in exec_instructions {
