@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display, Formatter, Result};
 
 // Let's enable OpCode to be Copy-able, as it is a primitive type. This makes things A LOT simpler
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum OpCode {
     Noop,
     Push,

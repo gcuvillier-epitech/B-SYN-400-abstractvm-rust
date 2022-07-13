@@ -3,8 +3,8 @@ use bigdecimal::{BigDecimal, FromPrimitive};
 use std::fmt::{Debug, Display, Formatter, Result};
 use std::ops::{Add, Mul};
 
-// Unfortunately Value can't be Copy-able because BigDecimal is not.
-// Let's enable Clone anyway
+// Remark 1: unfortunately Value can't be Copy-able because BigDecimal is not Copy-able itself. So we can only rely on Clone. This make things quite more difficult as we will need to manage lifetime of Values...
+// Remark 2: Eq would have been a good candidate, but unfortunatelly f32 does not implement Eq. Impact is minimal though
 #[derive(Clone, PartialEq)]
 pub enum Value {
     Int8(i8),

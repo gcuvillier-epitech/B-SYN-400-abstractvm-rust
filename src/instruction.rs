@@ -5,7 +5,7 @@ use crate::value::Value;
 
 // Unfortunately Value can't be Copy-able because BigDecimal is not.
 // Let's enable Clone anyway
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Instruction {
     pub code: OpCode,
     pub value: Option<Value>,
