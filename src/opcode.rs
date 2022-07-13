@@ -1,5 +1,6 @@
 use std::fmt::{Debug, Display, Formatter, Result};
 
+// Let's enable OpCode to be Copy-able, as it is a primitive type. This makes things A LOT simpler
 #[derive(Copy, Clone)]
 pub enum OpCode {
     Noop,
@@ -75,7 +76,7 @@ impl OpCode {
         }
     }
 
-    pub fn needs_value(&self) -> bool {
+    pub fn needs_value(self) -> bool {
         match self {
             OpCode::Push => true,
             OpCode::Assert => true,
