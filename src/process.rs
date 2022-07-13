@@ -42,7 +42,7 @@ impl Process {
         }
 
         // Compute the instruction range to execute = from ip to min(program_len, ip+count)
-        let exec_instructions = &self.program[self.state.ip..min(self.program.len(), self.state.ip + count)];
+         let exec_instructions = &self.program[self.state.ip..min(self.program.len(), self.state.ip + count)];
 
         // Execute each instruction in the range
         for instruction in exec_instructions {
@@ -131,7 +131,7 @@ impl Process {
                 }
                 OpCode::Print => match self.state.stack.last() {
                     None => panic!("stack underflow - case 10"),
-                    Some(v) => match *v {
+                    Some(v) => match *v {                       // Why this works ??? Normally, &Value can't be dereferenced. Even the IDE complains, but the compiler is OK...
                         Value::Int8(v) => {
                             let c = v as u8;
                             match c.is_ascii() {
