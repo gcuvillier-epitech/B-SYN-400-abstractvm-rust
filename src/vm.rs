@@ -2,13 +2,12 @@ use std::collections::hash_map::HashMap;
 
 use crate::process::Process;
 use crate::program::Program;
-use crate::value::Value;
 
-const VM_RUN_CYCLES : usize = 7;
+const VM_RUN_CYCLES: usize = 7;
 
 pub struct VM {
     last_pid: usize,
-    processes: HashMap<usize, Process>
+    processes: HashMap<usize, Process>,
 }
 
 impl VM {

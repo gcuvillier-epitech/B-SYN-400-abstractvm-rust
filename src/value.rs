@@ -107,29 +107,29 @@ impl Value {
                 match first_token {
                     "int8" => match second_token.parse::<i8>() {
                         Ok(v) => Value::Int8(v),
-                        Err(e) => panic!("syntax error: illegal int8: {}", s),
+                        Err(_) => panic!("syntax error: illegal int8: {}", s),
                     },
                     "int16" => match second_token.parse::<i16>() {
                         Ok(v) => Value::Int16(v),
-                        Err(e) => panic!("syntax error: illegal int16: {}", s),
+                        Err(_) => panic!("syntax error: illegal int16: {}", s),
                     },
                     "int32" => match second_token.parse::<i32>() {
                         Ok(v) => Value::Int32(v),
-                        Err(e) => panic!("syntax error: illegal int32: {}", s),
+                        Err(_) => panic!("syntax error: illegal int32: {}", s),
                     },
                     "float" => match second_token.parse::<f32>() {
                         Ok(v) => Value::Float(v),
-                        Err(e) => panic!("syntax error: illegal float: {}", s),
+                        Err(_) => panic!("syntax error: illegal float: {}", s),
                     },
                     "double" => match second_token.parse::<f64>() {
                         Ok(v) => Value::Double(v),
-                        Err(e) => panic!("syntax error: illegal double: {}", s),
+                        Err(_) => panic!("syntax error: illegal double: {}", s),
                     },
                     "bigdecimal" => match second_token.parse::<BigDecimal>() {
                         Ok(v) => Value::BigDecimal(v),
-                        Err(e) => panic!("syntax error: illegal bigdecimal: {}", s),
+                        Err(_) => panic!("syntax error: illegal bigdecimal: {}", s),
                     },
-                    e => panic!("syntax error: unknown value type: {}", s)
+                    _ => panic!("syntax error: unknown value type: {}", s)
                 }
             }
             _ => panic!("syntax error: missing parenthesis: {}", s),

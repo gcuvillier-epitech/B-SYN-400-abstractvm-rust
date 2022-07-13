@@ -1,6 +1,5 @@
 use std::cmp::min;
 
-use crate::instruction::Instruction;
 use crate::opcode::OpCode;
 use crate::program::Program;
 use crate::stack::Stack;
@@ -9,7 +8,7 @@ use crate::value::Value;
 pub struct Process {
     program: Program,
     stack: Stack,
-    registers: [Option<Value>; 16],
+    //registers: [Option<Value>; 16],
     ip: usize,
     exited: bool,
 }
@@ -19,10 +18,10 @@ impl Process {
         Process {
             program: p,
             stack: Stack::new(),
-            registers: [None, None, None, None,
-                None, None, None, None,
-                None, None, None, None,
-                None, None, None, None],
+            // registers: [None, None, None, None,
+            //     None, None, None, None,
+            //     None, None, None, None,
+            //     None, None, None, None],
             ip: 0,
             exited: false,
         }
@@ -46,13 +45,13 @@ impl Process {
                 panic!("process attempted to run an instruction past after having exited")
             }
             match instruction.code {
-                OpCode::Noop => {},
+                OpCode::Noop => {}
                 OpCode::Push => match &instruction.value {
                     None => panic!("no associated value to push opcode"),
                     Some(v) => self.stack.push(v.clone()),
                 },
                 OpCode::Pop => match self.stack.pop() {
-                    None => panic!("stack underflow"),
+                    None => panic!("stack underflow - case 1"),
                     Some(_) => {} // already pop'ed in the match clause
                 },
                 OpCode::Dump => for v in self.stack.iter() {
@@ -60,15 +59,18 @@ impl Process {
                 },
                 OpCode::Clear => self.stack.clear(),
                 OpCode::Dup => match self.stack.last() {
-                    None => panic!("stack underflow"),
-                    Some(v) => self.stack.push(v.clone()),
+                    None => panic!("stack underflow - case 2"),
+                    Some(v) => {
+                        let cv = v.clone();     // can't do self.stack.push(v.clone) due to annoying borrow checker
+                        self.stack.push(cv);
+                    }
                 },
                 OpCode::Swap => match (self.stack.pop(), self.stack.pop()) {
                     (Some(v1), Some(v2)) => {
                         self.stack.push(v1);
                         self.stack.push(v2);
-                    },
-                    _ => panic!("stack underflow"),
+                    }
+                    _ => panic!("stack underflow - case 3"),
                 },
                 OpCode::Assert => match self.stack.last() {
                     None => panic!("stack underflow"),
@@ -81,7 +83,7 @@ impl Process {
                 },
                 OpCode::Add => match (self.stack.pop(), self.stack.pop()) {
                     (Some(v1), Some(v2)) => self.stack.push(v1 + v2),
-                    _ => panic!("stack underflow"),
+                    _ => panic!("stack underflow - case 4"),
                 },
                 OpCode::Sub => {}
                 OpCode::Mul => {}
@@ -90,7 +92,7 @@ impl Process {
                 OpCode::Load => {}
                 OpCode::Store => {}
                 OpCode::Print => match self.stack.last() {
-                    None => panic!("stack underflow"),
+                    None => panic!("stack underflow - case 5"),
                     Some(v) => match v {
                         Value::Int8(v) => {
                             let c = *v as u8;
@@ -98,7 +100,7 @@ impl Process {
                                 false => panic!("value is not ascii char: {}", c),
                                 true => println!("{}", char::from(c))
                             }
-                        },
+                        }
                         _ => panic!("value is not int8: {:?}", v)
                     },
                 },

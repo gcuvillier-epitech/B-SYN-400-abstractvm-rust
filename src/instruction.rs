@@ -34,14 +34,14 @@ impl Instruction {
                 } else {
                     Instruction { code: op, value: None }
                 }
-            },
+            }
             _ => {
                 let op = OpCode::parse(s.trim());
                 if op.needs_value() {
                     panic!("syntax error: opcode needs a value: {}", s)
                 }
                 Instruction { code: op, value: None }
-            },
+            }
         }
     }
 }

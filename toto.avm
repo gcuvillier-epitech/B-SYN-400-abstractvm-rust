@@ -1,10 +1,17 @@
-push bigdecimal(2.77777777777777777777777777777777)
-dup
-add
-push float(4)
-swap
-add
+
+push int16(5)
+push int8(3)
 dump
-push int8(71)
-          print
+add
+assert int16(8)
+dup
+dump
+push int8(3)
+push int8(3)
+add
+push 		 float(4)
+swap
+dump
+push int8(-127)
+        	   print
 exit
