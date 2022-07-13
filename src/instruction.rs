@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display, Formatter, Result};
 
-use crate::opcode::{op_code_needs_value, OpCode, parse_op_code};
-use crate::value::{parse_value, Value};
+use crate::opcode::OpCode;
+use crate::value::Value;
 
 pub struct Instruction {
     pub code: OpCode,
@@ -20,17 +20,19 @@ impl Debug for Instruction {
     }
 }
 
-pub fn parse_instruction(s: &str) -> Instruction {
-    match s.find(' ') {
-        Some(a) => {
-            let op = parse_op_code(s[..a].trim());
-            if op_code_needs_value(op) {
-                let val = parse_value(s[a + 1..].trim());
-                Instruction { code: op, value: Some(val) }
-            } else {
-                Instruction { code: op, value: None }
+impl Instruction {
+    pub fn parse(s: &str) -> Instruction {
+        match s.find(' ') {
+            Some(a) => {
+                let op = OpCode::parse(s[..a].trim());
+                if op.needs_value() {
+                    let val = Value::parse(s[a + 1..].trim());
+                    Instruction { code: op, value: Some(val) }
+                } else {
+                    Instruction { code: op, value: None }
+                }
             }
+            _ => Instruction { code: OpCode::parse(s.trim()), value: None }
         }
-        _ => Instruction { code: parse_op_code(s.trim()), value: None }
     }
 }

@@ -18,9 +18,9 @@ impl Display for Value {
             Value::Int8(arg) => write!(f, "{}", arg),
             Value::Int16(arg) => write!(f, "{}", arg),
             Value::Int32(arg) => write!(f, "{}", arg),
-            Value::Float(arg) => write!(f, "{}", arg),
-            Value::Double(arg) => write!(f, "{}", arg),
-            Value::BigDecimal(arg) => write!(f, "{}", arg),
+            Value::Float(arg) => write!(f, "{:.7}", arg),
+            Value::Double(arg) => write!(f, "{:.15}", arg),
+            Value::BigDecimal(arg) => write!(f, "{:.200}", arg),
         }
     }
 }
@@ -95,39 +95,41 @@ impl Add for Value {
     }
 }
 
-pub fn parse_value(s: &str) -> Value {
-    match (s.find('('), s.find(')')) {
-        (Some(a), Some(b)) => {
-            let first_token = s[..a].trim();
-            let second_token = s[a + 1..b].trim();
-            match first_token {
-                "int8" => match second_token.parse::<i8>() {
-                    Ok(v) => Value::Int8(v),
-                    Err(e) => panic!("illegal int8: {:?}", e),
-                },
-                "int16" => match second_token.parse::<i16>() {
-                    Ok(v) => Value::Int16(v),
-                    Err(e) => panic!("illegal int16: {:?}", e),
-                },
-                "int32" => match second_token.parse::<i32>() {
-                    Ok(v) => Value::Int32(v),
-                    Err(e) => panic!("illegal int32: {:?}", e),
-                },
-                "float" => match second_token.parse::<f32>() {
-                    Ok(v) => Value::Float(v),
-                    Err(e) => panic!("illegal float: {:?}", e),
-                },
-                "double" => match second_token.parse::<f64>() {
-                    Ok(v) => Value::Double(v),
-                    Err(e) => panic!("illegal double: {:?}", e),
-                },
-                "bigdecimal" => match second_token.parse::<BigDecimal>() {
-                    Ok(v) => Value::BigDecimal(v),
-                    Err(e) => panic!("illegal bigdecimal: {:?}", e),
-                },
-                e => panic!("unknown value type: {:?}", e)
+impl Value {
+    pub fn parse(s: &str) -> Value {
+        match (s.find('('), s.find(')')) {
+            (Some(a), Some(b)) => {
+                let first_token = s[..a].trim();
+                let second_token = s[a + 1..b].trim();
+                match first_token {
+                    "int8" => match second_token.parse::<i8>() {
+                        Ok(v) => Value::Int8(v),
+                        Err(e) => panic!("illegal int8: {:?}", e),
+                    },
+                    "int16" => match second_token.parse::<i16>() {
+                        Ok(v) => Value::Int16(v),
+                        Err(e) => panic!("illegal int16: {:?}", e),
+                    },
+                    "int32" => match second_token.parse::<i32>() {
+                        Ok(v) => Value::Int32(v),
+                        Err(e) => panic!("illegal int32: {:?}", e),
+                    },
+                    "float" => match second_token.parse::<f32>() {
+                        Ok(v) => Value::Float(v),
+                        Err(e) => panic!("illegal float: {:?}", e),
+                    },
+                    "double" => match second_token.parse::<f64>() {
+                        Ok(v) => Value::Double(v),
+                        Err(e) => panic!("illegal double: {:?}", e),
+                    },
+                    "bigdecimal" => match second_token.parse::<BigDecimal>() {
+                        Ok(v) => Value::BigDecimal(v),
+                        Err(e) => panic!("illegal bigdecimal: {:?}", e),
+                    },
+                    e => panic!("unknown value type: {:?}", e)
+                }
             }
+            _ => panic!("syntax error"),
         }
-        _ => panic!("syntax error"),
     }
 }

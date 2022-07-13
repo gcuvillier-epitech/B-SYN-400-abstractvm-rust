@@ -51,35 +51,37 @@ impl Debug for OpCode {
     }
 }
 
-pub fn op_code_needs_value(op: OpCode) -> bool {
-    match op {
-        OpCode::Push => true,
-        OpCode::Assert => true,
-        OpCode::Load => true,
-        OpCode::Store => true,
-        _ => false
+impl OpCode {
+    pub fn parse(s: &str) -> OpCode {
+        match s {
+            "noop" => OpCode::Noop,
+            "push" => OpCode::Push,
+            "pop" => OpCode::Pop,
+            "dump" => OpCode::Dump,
+            "clear" => OpCode::Clear,
+            "dup" => OpCode::Dup,
+            "swap" => OpCode::Swap,
+            "assert" => OpCode::Assert,
+            "add" => OpCode::Add,
+            "sub" => OpCode::Sub,
+            "mul" => OpCode::Mul,
+            "div" => OpCode::Div,
+            "mod" => OpCode::Mod,
+            "load" => OpCode::Load,
+            "store" => OpCode::Store,
+            "print" => OpCode::Print,
+            "exit" => OpCode::Exit,
+            _ => panic!("unknown opcode")
+        }
     }
-}
 
-pub fn parse_op_code(s: &str) -> OpCode {
-    match s {
-        "noop" => OpCode::Noop,
-        "push" => OpCode::Push,
-        "pop" => OpCode::Pop,
-        "dump" => OpCode::Dump,
-        "clear" => OpCode::Clear,
-        "dup" => OpCode::Dup,
-        "swap" => OpCode::Swap,
-        "assert" => OpCode::Assert,
-        "add" => OpCode::Add,
-        "sub" => OpCode::Sub,
-        "mul" => OpCode::Mul,
-        "div" => OpCode::Div,
-        "mod" => OpCode::Mod,
-        "load" => OpCode::Load,
-        "store" => OpCode::Store,
-        "print" => OpCode::Print,
-        "exit" => OpCode::Exit,
-        _ => panic!("unknown opcode")
+    pub fn needs_value(&self) -> bool {
+        match self {
+            OpCode::Push => true,
+            OpCode::Assert => true,
+            OpCode::Load => true,
+            OpCode::Store => true,
+            _ => false
+        }
     }
 }

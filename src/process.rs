@@ -12,7 +12,7 @@ impl Process<'_> {
         Process { program: p }
     }
 
-    pub fn run(&mut self) {
+    pub fn run(&self) {
         let mut st = Stack::new();
         for instruction in self.program {
             match instruction.code {

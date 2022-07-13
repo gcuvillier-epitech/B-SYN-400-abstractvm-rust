@@ -4,27 +4,28 @@ use crate::process::Process;
 use crate::program::Program;
 
 pub struct VM<'a> {
-    lastpid: usize,
+    last_pid: usize,
     processes: HashMap<usize, Process<'a>>,
 }
 
 impl<'a> VM<'a> {
     pub fn new() -> VM<'a> {
-        VM { lastpid: 0, processes: HashMap::new() }
+        VM { last_pid: 0, processes: HashMap::new() }
     }
 
     pub fn load_program(&mut self, p: &'a Program) -> usize {
-        self.lastpid = self.lastpid + 1;
-        self.processes.insert(self.lastpid, Process::new(&p));
-        self.lastpid
+        self.last_pid = self.last_pid + 1;
+        self.processes.insert(self.last_pid, Process::new(&p));
+        self.last_pid
     }
 
     pub fn run_process(&mut self, pid: usize) {
-        match self.processes.get_mut(&pid) {
+        match self.processes.get(&pid) {
             Some(v) => {
-                v.run()
+                v.run();
+                self.processes.remove(&pid);
             }
-            None => {}
+            None => panic!("unknown process ID")
         }
     }
 }

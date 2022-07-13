@@ -1,9 +1,9 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-use crate::instruction;
+use crate::instruction::Instruction;
 
-pub type Program = Vec<instruction::Instruction>;
+pub type Program = Vec<Instruction>;
 
 pub fn compile_asm(filename: &str) -> Program {
     match File::open(&filename) {
@@ -14,12 +14,12 @@ pub fn compile_asm(filename: &str) -> Program {
                 match line {
                     Err(why) => panic!("couldn't read line: {}", why),
                     Ok(line) => {
-                        let cleaned = match line.find(';') {
-                            Some(a) => line.as_str()[..a].trim(),
-                            None => line.as_str().trim()
-                        };
-                        if cleaned.chars().count() > 0 {
-                            prog.push(instruction::parse_instruction(cleaned));
+                        let line = match line.find(';') {
+                            Some(a) => &line.as_str()[..a],
+                            None => line.as_str()
+                        }.trim();
+                        if line.len() > 0 {
+                            prog.push(Instruction::parse(line));
                         }
                     }
                 };
