@@ -1,6 +1,9 @@
 
-push int16(32767)
-push int8(3)
+push int8(30)
+store int8(15)
+push int16(45)
+load int8(15)
+assert int8(30)
 mul
 dump
 exit

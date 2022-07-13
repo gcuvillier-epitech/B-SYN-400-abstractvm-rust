@@ -4,16 +4,16 @@ use crate::opcode::OpCode;
 use crate::program::Program;
 use crate::value::Value;
 
-pub struct State {
+pub struct Process {
+    program: Program,
+    state: State,
+}
+
+struct State {
     stack: Vec<Value>,
     registers: [Option<Value>; 16],
     ip: usize,
     exited: bool,
-}
-
-pub struct Process {
-    program: Program,
-    state: State,
 }
 
 impl Process {
@@ -63,11 +63,11 @@ impl Process {
                     println!("{}", v);
                 },
                 OpCode::Clear => self.state.stack.clear(),
-                OpCode::Dup => match self.state.stack.last() {
+                OpCode::Dup => match self.state.stack.pop() {
                     None => panic!("stack underflow - case 2"),
                     Some(v) => {
-                        let cv = v.clone();     // can't do self.stack.push(v.clone) due to annoying borrow checker (v is borrowed from immutable .last(), but .push will borrow stack mutable)
-                        self.state.stack.push(cv);
+                        self.state.stack.push(v.clone());
+                        self.state.stack.push(v);
                     }
                 },
                 OpCode::Swap => match (self.state.stack.pop(), self.state.stack.pop()) {
@@ -81,7 +81,7 @@ impl Process {
                     None => panic!("stack underflow"),
                     Some(v1) => match &instruction.value {
                         None => panic!("no associated value to assert instruction"),
-                        Some(v2) => if !(v1 == v2) {
+                        Some(v2) => if !(v1 == v2) {       // why it works???? I would have used (*v1 == *v2)
                             panic!("assertion failed: {:?} != {:?}", v1, v2)
                         },
                     },
@@ -92,43 +92,45 @@ impl Process {
                 },
                 OpCode::Mul => match (self.state.stack.pop(), self.state.stack.pop()) {
                     (Some(v1), Some(v2)) => self.state.stack.push(v1 * v2),
-                    _ => panic!("stack underflow - case 4"),
+                    _ => panic!("stack underflow - case 5"),
                 },
                 OpCode::Sub => {}
                 OpCode::Div => {}
                 OpCode::Mod => {}
                 OpCode::Load => match &instruction.value {
                     None => panic!("no associated value to load opcode"),
-                    Some(v) => match *v {
-                        Value::Int8(v) => {
-                            if v < 0 || v > 15 {
-                                panic!("invalid register: {}", v)
+                    Some(regval) => {
+                        self.state.stack.push(match regval {        // alternative: regval.clone(), allowing to not have to dereference 'reg' everywhere
+                            Value::Int8(reg) => {
+                                if *reg < 0 || *reg > 15 {
+                                    panic!("invalid register: {:?}", reg)
+                                }
+                                match &self.state.registers[*reg as usize] {
+                                    None => panic!("load: register is empty: {}", reg),
+                                    Some(v) => v.clone(),
+                                }
                             }
-                            match &self.state.registers[v as usize] {
-                                None => panic!("load: register is empty: {}", v),
-                                Some(v) => self.state.stack.push(v.clone())
-                            }
-                        }
-                        _ => panic!("value is not int8: {:?}", v)
+                            other => panic!("value for register is not int8: {:?}", other)
+                        })
                     }
                 }
                 OpCode::Store => match &instruction.value {
                     None => panic!("no associated value to store opcode"),
-                    Some(v) => match *v {
-                        Value::Int8(v) => {
-                            if v < 0 || v > 15 {
-                                panic!("invalid register: {:?}", v)
+                    Some(regval) => match self.state.stack.pop() {
+                        Some(sval) => match regval {
+                            Value::Int8(reg) => {
+                                if *reg < 0 || *reg > 15 {
+                                    panic!("invalid register: {:?}", reg)
+                                }
+                                self.state.registers[*reg as usize] = Some(sval)
                             }
-                            match self.state.stack.pop() {
-                                None => panic!("stack underflow - case 1"),
-                                Some(sv) => { self.state.registers[v as usize] = Some(sv) }
-                            }
+                            other => panic!("value for register is not int8: {:?}", other)
                         }
-                        _ => panic!("value is not int8: {:?}", v)
-                    }
+                        _ => panic!("stack underflow - case 9"),
+                    },
                 }
                 OpCode::Print => match self.state.stack.last() {
-                    None => panic!("stack underflow - case 7"),
+                    None => panic!("stack underflow - case 10"),
                     Some(v) => match *v {
                         Value::Int8(v) => {
                             let c = v as u8;
