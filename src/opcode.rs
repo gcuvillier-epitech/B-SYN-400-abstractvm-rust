@@ -72,7 +72,7 @@ impl OpCode {
             "store" => OpCode::Store,
             "print" => OpCode::Print,
             "exit" => OpCode::Exit,
-            _ => panic!("unknown opcode")
+            _ => panic!("syntax error: unknown opcode: {}", s)
         }
     }
 

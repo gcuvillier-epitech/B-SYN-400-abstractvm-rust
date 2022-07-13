@@ -21,9 +21,9 @@ impl Display for Value {
             Value::Int8(arg) => write!(f, "{}", arg),
             Value::Int16(arg) => write!(f, "{}", arg),
             Value::Int32(arg) => write!(f, "{}", arg),
-            Value::Float(arg) => write!(f, "{:.7}", arg),
-            Value::Double(arg) => write!(f, "{:.15}", arg),
-            Value::BigDecimal(arg) => write!(f, "{:.200}", arg),
+            Value::Float(arg) => write!(f, "{}", format!("{:.7}", arg).trim_end_matches(['0']).trim_end_matches(['.'])),
+            Value::Double(arg) => write!(f, "{}", format!("{:.15}", arg).trim_end_matches(['0']).trim_end_matches(['.'])),
+            Value::BigDecimal(arg) => write!(f, "{}", format!("{:.200}", arg).trim_end_matches(['0']).trim_end_matches(['.'])),
         }
     }
 }
@@ -107,32 +107,32 @@ impl Value {
                 match first_token {
                     "int8" => match second_token.parse::<i8>() {
                         Ok(v) => Value::Int8(v),
-                        Err(e) => panic!("illegal int8: {:?}", e),
+                        Err(e) => panic!("syntax error: illegal int8: {}", s),
                     },
                     "int16" => match second_token.parse::<i16>() {
                         Ok(v) => Value::Int16(v),
-                        Err(e) => panic!("illegal int16: {:?}", e),
+                        Err(e) => panic!("syntax error: illegal int16: {}", s),
                     },
                     "int32" => match second_token.parse::<i32>() {
                         Ok(v) => Value::Int32(v),
-                        Err(e) => panic!("illegal int32: {:?}", e),
+                        Err(e) => panic!("syntax error: illegal int32: {}", s),
                     },
                     "float" => match second_token.parse::<f32>() {
                         Ok(v) => Value::Float(v),
-                        Err(e) => panic!("illegal float: {:?}", e),
+                        Err(e) => panic!("syntax error: illegal float: {}", s),
                     },
                     "double" => match second_token.parse::<f64>() {
                         Ok(v) => Value::Double(v),
-                        Err(e) => panic!("illegal double: {:?}", e),
+                        Err(e) => panic!("syntax error: illegal double: {}", s),
                     },
                     "bigdecimal" => match second_token.parse::<BigDecimal>() {
                         Ok(v) => Value::BigDecimal(v),
-                        Err(e) => panic!("illegal bigdecimal: {:?}", e),
+                        Err(e) => panic!("syntax error: illegal bigdecimal: {}", s),
                     },
-                    e => panic!("unknown value type: {:?}", e)
+                    e => panic!("syntax error: unknown value type: {}", s)
                 }
             }
-            _ => panic!("syntax error - missing parenthesis: {}", s),
+            _ => panic!("syntax error: missing parenthesis: {}", s),
         }
     }
 }

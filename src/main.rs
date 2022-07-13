@@ -16,7 +16,7 @@ fn main() {
         let p: Program = compile_asm("./toto.avm");
         let mut vm: VM = VM::new();
 
-        let pid = vm.load_program(&p);
+        let pid = vm.load_program(p);
 
         vm.run_process(pid);
 

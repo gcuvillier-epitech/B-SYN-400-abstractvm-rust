@@ -1,9 +1,10 @@
-push int32(3)
+push bigdecimal(2.77777777777777777777777777777777)
 dup
 add
 push float(4)
 swap
-sub
+add
 dump
+push int8(71)
+          print
 exit
-
