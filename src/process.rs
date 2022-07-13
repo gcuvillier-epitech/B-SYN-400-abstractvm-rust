@@ -2,12 +2,11 @@ use std::cmp::min;
 
 use crate::opcode::OpCode;
 use crate::program::Program;
-use crate::stack::Stack;
 use crate::value::Value;
 
 pub struct Process {
     program: Program,
-    stack: Stack,
+    stack: Vec<Value>,
     //registers: [Option<Value>; 16],
     ip: usize,
     exited: bool,
@@ -17,7 +16,7 @@ impl Process {
     pub fn new(p: Program) -> Process {
         Process {
             program: p,
-            stack: Stack::new(),
+            stack: Vec::new(),
             // registers: [None, None, None, None,
             //     None, None, None, None,
             //     None, None, None, None,
@@ -61,7 +60,7 @@ impl Process {
                 OpCode::Dup => match self.stack.last() {
                     None => panic!("stack underflow - case 2"),
                     Some(v) => {
-                        let cv = v.clone();     // can't do self.stack.push(v.clone) due to annoying borrow checker
+                        let cv = v.clone();     // can't do self.stack.push(v.clone) due to annoying borrow checker (v is borrowed from immutable .last(), but .push will borrow stack mutable)
                         self.stack.push(cv);
                     }
                 },
@@ -95,7 +94,7 @@ impl Process {
                     None => panic!("stack underflow - case 5"),
                     Some(v) => match v {
                         Value::Int8(v) => {
-                            let c = *v as u8;
+                            let c = *v as u8;       // not clear why 'v' is '&i8' and not i8
                             match c.is_ascii() {
                                 false => panic!("value is not ascii char: {}", c),
                                 true => println!("{}", char::from(c))

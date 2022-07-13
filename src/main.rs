@@ -6,7 +6,6 @@ use vm::*;
 mod opcode;
 mod value;
 mod instruction;
-mod stack;
 mod program;
 mod vm;
 mod process;
