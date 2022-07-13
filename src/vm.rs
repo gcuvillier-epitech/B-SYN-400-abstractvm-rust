@@ -2,15 +2,24 @@ use std::collections::hash_map::HashMap;
 
 use crate::process::Process;
 use crate::program::Program;
+use crate::value::Value;
 
 pub struct VM<'a> {
     last_pid: usize,
     processes: HashMap<usize, Process<'a>>,
+    registers: [Option<Value>; 16],
 }
 
 impl<'a> VM<'a> {
     pub fn new() -> VM<'a> {
-        VM { last_pid: 0, processes: HashMap::new() }
+        VM {
+            last_pid: 0,
+            processes: HashMap::new(),
+            registers: [None, None, None, None,
+                None, None, None, None,
+                None, None, None, None,
+                None, None, None, None],
+        }
     }
 
     pub fn load_program(&mut self, p: &'a Program) -> usize {
