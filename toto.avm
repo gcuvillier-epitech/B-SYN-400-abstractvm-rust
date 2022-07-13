@@ -1,17 +1,6 @@
 
-push int16(5)
+push int16(32767)
 push int8(3)
+mul
 dump
-add
-assert int16(8)
-dup
-dump
-push int8(3)
-push int8(3)
-add
-push 		 float(4)
-swap
-dump
-push int8(-127)
-        	   print
 exit

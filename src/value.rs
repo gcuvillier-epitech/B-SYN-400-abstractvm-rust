@@ -1,7 +1,7 @@
 use bigdecimal::{BigDecimal, FromPrimitive};
 
 use std::fmt::{Debug, Display, Formatter, Result};
-use std::ops::Add;
+use std::ops::{Add, Mul};
 
 // Unfortunately Value can't be Copy-able because BigDecimal is not.
 // Let's enable Clone anyway
@@ -93,6 +93,63 @@ impl Add for Value {
                 Value::Float(arg2) => Value::BigDecimal(arg1 + BigDecimal::from_f32(arg2).unwrap()),
                 Value::Double(arg2) => Value::BigDecimal(arg1 + BigDecimal::from_f64(arg2).unwrap()),
                 Value::BigDecimal(arg2) => Value::BigDecimal(arg1 + arg2),
+            },
+        }
+    }
+}
+
+impl Mul for Value {
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self {
+        match self {
+            Value::Int8(arg1) => match other {
+                Value::Int8(arg2) => Value::Int8(arg1 * arg2),
+                Value::Int16(arg2) => Value::Int16(arg1 as i16 * arg2),
+                Value::Int32(arg2) => Value::Int32(arg1 as i32 * arg2),
+                Value::Float(arg2) => Value::Float(arg1 as f32 * arg2),
+                Value::Double(arg2) => Value::Double(arg1 as f64 * arg2),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_i8(arg1).unwrap() * arg2),
+            },
+            Value::Int16(arg1) => match other {
+                Value::Int8(arg2) => Value::Int16(arg1 * arg2 as i16),
+                Value::Int16(arg2) => Value::Int16(arg1 * arg2),
+                Value::Int32(arg2) => Value::Int32(arg1 as i32 * arg2),
+                Value::Float(arg2) => Value::Float(arg1 as f32 * arg2),
+                Value::Double(arg2) => Value::Double(arg1 as f64 * arg2),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_i16(arg1).unwrap() * arg2),
+            },
+            Value::Int32(arg1) => match other {
+                Value::Int8(arg2) => Value::Int32(arg1 * arg2 as i32),
+                Value::Int16(arg2) => Value::Int32(arg1 * arg2 as i32),
+                Value::Int32(arg2) => Value::Int32(arg1 * arg2),
+                Value::Float(arg2) => Value::Float(arg1 as f32 * arg2),
+                Value::Double(arg2) => Value::Double(arg1 as f64 * arg2),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_i32(arg1).unwrap() * arg2),
+            },
+            Value::Float(arg1) => match other {
+                Value::Int8(arg2) => Value::Float(arg1 * arg2 as f32),
+                Value::Int16(arg2) => Value::Float(arg1 * arg2 as f32),
+                Value::Int32(arg2) => Value::Float(arg1 * arg2 as f32),
+                Value::Float(arg2) => Value::Float(arg1 * arg2),
+                Value::Double(arg2) => Value::Double(arg1 as f64 * arg2),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_f32(arg1).unwrap() * arg2),
+            },
+            Value::Double(arg1) => match other {
+                Value::Int8(arg2) => Value::Double(arg1 * arg2 as f64),
+                Value::Int16(arg2) => Value::Double(arg1 * arg2 as f64),
+                Value::Int32(arg2) => Value::Double(arg1 * arg2 as f64),
+                Value::Float(arg2) => Value::Double(arg1 * arg2 as f64),
+                Value::Double(arg2) => Value::Double(arg1 * arg2 as f64),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_f64(arg1).unwrap() * arg2),
+            },
+            Value::BigDecimal(arg1) => match other {
+                Value::Int8(arg2) => Value::BigDecimal(arg1 * BigDecimal::from_i8(arg2).unwrap()),
+                Value::Int16(arg2) => Value::BigDecimal(arg1 * BigDecimal::from_i16(arg2).unwrap()),
+                Value::Int32(arg2) => Value::BigDecimal(arg1 * BigDecimal::from_i32(arg2).unwrap()),
+                Value::Float(arg2) => Value::BigDecimal(arg1 * BigDecimal::from_f32(arg2).unwrap()),
+                Value::Double(arg2) => Value::BigDecimal(arg1 * BigDecimal::from_f64(arg2).unwrap()),
+                Value::BigDecimal(arg2) => Value::BigDecimal(arg1 * arg2),
             },
         }
     }
