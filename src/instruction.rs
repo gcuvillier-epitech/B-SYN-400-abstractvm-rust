@@ -1,12 +1,11 @@
-use substring::Substring;
 use std::fmt::{Debug, Display, Formatter, Result};
 
-use crate::opcode;
-use crate::value;
+use crate::opcode::{op_code_needs_value, OpCode, parse_op_code};
+use crate::value::{parse_value, Value};
 
 pub struct Instruction {
-    code: opcode::OpCode,
-    value: value::Value,
+    pub code: OpCode,
+    pub value: Option<Value>,
 }
 
 impl Display for Instruction {
@@ -24,14 +23,14 @@ impl Debug for Instruction {
 pub fn parse_instruction(s: &str) -> Instruction {
     match s.find(' ') {
         Some(a) => {
-            let op = opcode::parse_op_code(s.substring(0, a).trim());
-            if opcode::op_code_needs_value(op) {
-                let val = value::parse_value(s.substring(a, s.chars().count()).trim());
-                Instruction{ code: op , value: val }
+            let op = parse_op_code(s[..a].trim());
+            if op_code_needs_value(op) {
+                let val = parse_value(s[a + 1..].trim());
+                Instruction { code: op, value: Some(val) }
             } else {
-                Instruction { code: op , value: value::Value::Int8(0) }
+                Instruction { code: op, value: None }
             }
         }
-        _ => panic!("Syntax error")
+        _ => Instruction { code: parse_op_code(s.trim()), value: None }
     }
 }

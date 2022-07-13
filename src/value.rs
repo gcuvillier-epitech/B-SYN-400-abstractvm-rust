@@ -1,10 +1,8 @@
+use bigdecimal::{BigDecimal, FromPrimitive};
+
 use std::fmt::{Debug, Display, Formatter, Result};
 use std::ops::Add;
 
-use bigdecimal::{BigDecimal, FromPrimitive};
-use substring::Substring;
-
-#[allow(dead_code)]
 pub enum Value {
     Int8(i8),
     Int16(i16),
@@ -100,8 +98,8 @@ impl Add for Value {
 pub fn parse_value(s: &str) -> Value {
     match (s.find('('), s.find(')')) {
         (Some(a), Some(b)) => {
-            let first_token = s.substring(0, a).trim();
-            let second_token = s.substring(a + 1, b).trim();
+            let first_token = s[..a].trim();
+            let second_token = s[a + 1..b].trim();
             match first_token {
                 "int8" => match second_token.parse::<i8>() {
                     Ok(v) => Value::Int8(v),

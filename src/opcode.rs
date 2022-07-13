@@ -1,6 +1,5 @@
 use std::fmt::{Debug, Display, Formatter, Result};
 
-#[allow(dead_code)]
 #[derive(Copy, Clone)]
 pub enum OpCode {
     Noop,

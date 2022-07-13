@@ -7,4 +7,3 @@ edition = "2021"
 
 [dependencies]
 bigdecimal = "0.3.0"
-substring = "1.4.5"
