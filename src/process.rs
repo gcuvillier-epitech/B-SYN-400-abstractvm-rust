@@ -81,7 +81,7 @@ impl Process {
                     None => panic!("stack underflow"),
                     Some(v1) => match &instruction.value {
                         None => panic!("no associated value to assert instruction"),
-                        Some(v2) => if !(v1 == v2) {       // why it works???? I would have used (*v1 == *v2)
+                        Some(v2) => if !(v1 == v2) {
                             panic!("assertion failed: {:?} != {:?}", v1, v2)
                         },
                     },
