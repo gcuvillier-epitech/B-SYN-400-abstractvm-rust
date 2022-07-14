@@ -95,10 +95,7 @@ impl Process {
                     _ => panic!("stack underflow - case 5"),
                 },
                 OpCode::Sub => match (self.state.stack.pop(), self.state.stack.pop()) {
-                    (Some(v1), Some(v2)) => {
-                        println!("{:?} {:?}", v1, v2);
-                        self.state.stack.push(v2 - v1)
-                    }
+                    (Some(v1), Some(v2)) => self.state.stack.push(v2 - v1),
                     _ => panic!("stack underflow - case 5"),
                 },
                 OpCode::Div => match (self.state.stack.pop(), self.state.stack.pop()) {
