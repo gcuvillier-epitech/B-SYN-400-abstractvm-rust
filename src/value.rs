@@ -21,9 +21,9 @@ impl Display for Value {
             Value::Int8(arg) => write!(f, "{}", arg),
             Value::Int16(arg) => write!(f, "{}", arg),
             Value::Int32(arg) => write!(f, "{}", arg),
-            Value::Float(arg) => write!(f, "{}", format!("{:.7}", arg).trim_end_matches(['0']).trim_end_matches(['.'])),
-            Value::Double(arg) => write!(f, "{}", format!("{:.15}", arg).trim_end_matches(['0']).trim_end_matches(['.'])),
-            Value::BigDecimal(arg) => write!(f, "{}", format!("{:.200}", arg).trim_end_matches(['0']).trim_end_matches(['.'])),
+            Value::Float(arg) => write!(f, "{}", arg),
+            Value::Double(arg) => write!(f, "{}", arg),
+            Value::BigDecimal(arg) => write!(f, "{}", arg),
         }
     }
 }
