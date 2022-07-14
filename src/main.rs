@@ -1,8 +1,7 @@
-use std::panic;
+use program::compile_asm;
 use std::env;
-
-use program::{compile_asm};
-use vm::{VM};
+use std::panic;
+use vm::VM;
 
 mod opcode;
 mod value;
