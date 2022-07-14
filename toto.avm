@@ -1,7 +1,0 @@
-
-push int16(30)
-push int16(0)
-dump
-mod
-dump
-exit
