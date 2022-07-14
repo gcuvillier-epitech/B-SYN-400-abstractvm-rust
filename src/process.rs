@@ -59,7 +59,7 @@ impl Process {
                     None => panic!("stack underflow - case 1"),
                     Some(_) => {} // already pop'ed in the match clause
                 },
-                OpCode::Dump => for v in self.state.stack.iter() {
+                OpCode::Dump => for v in self.state.stack.iter().rev() {
                     println!("{}", v);
                 },
                 OpCode::Clear => self.state.stack.clear(),
@@ -94,9 +94,21 @@ impl Process {
                     (Some(v1), Some(v2)) => self.state.stack.push(v1 * v2),
                     _ => panic!("stack underflow - case 5"),
                 },
-                OpCode::Sub => {}
-                OpCode::Div => {}
-                OpCode::Mod => {}
+                OpCode::Sub => match (self.state.stack.pop(), self.state.stack.pop()) {
+                    (Some(v1), Some(v2)) => {
+                        println!("{:?} {:?}", v1, v2);
+                        self.state.stack.push(v2 - v1)
+                    }
+                    _ => panic!("stack underflow - case 5"),
+                },
+                OpCode::Div => match (self.state.stack.pop(), self.state.stack.pop()) {
+                    (Some(v1), Some(v2)) => self.state.stack.push(v2 / v1),
+                    _ => panic!("stack underflow - case 5"),
+                },
+                OpCode::Mod => match (self.state.stack.pop(), self.state.stack.pop()) {
+                    (Some(v1), Some(v2)) => self.state.stack.push(v2 % v1),
+                    _ => panic!("stack underflow - case 5"),
+                },
                 OpCode::Load => match &instruction.value {
                     None => panic!("no associated value to load opcode"),
                     Some(regval) => {
