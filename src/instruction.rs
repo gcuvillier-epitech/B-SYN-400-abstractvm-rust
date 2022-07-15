@@ -1,4 +1,5 @@
 use std::fmt::{Debug, Display, Formatter, Result};
+use std::result;
 
 use crate::value::Value;
 
@@ -54,43 +55,58 @@ impl Debug for Instruction {
 
 impl Instruction
 {
-    pub fn parse(s: &str) -> Instruction {
+    pub fn parse(s: &str) -> result::Result<Instruction, String> {
         let first_offset = s.find(' ');
         let (opcode, value) = match first_offset {
             Some(v) => (&s[..v], &s[v + 1..]),
             None => (s, s),
         };
         match opcode {
-            "noop" => Instruction::Noop,
-            "push" => Instruction::Push(Value::parse(value.trim())),
-            "pop" => Instruction::Pop,
-            "dump" => Instruction::Dump,
-            "clear" => Instruction::Clear,
-            "dup" => Instruction::Dup,
-            "swap" => Instruction::Swap,
-            "assert" => Instruction::Assert(Value::parse(value.trim())),
-            "add" => Instruction::Add,
-            "sub" => Instruction::Sub,
-            "mul" => Instruction::Mul,
-            "div" => Instruction::Div,
-            "mod" => Instruction::Mod,
-            "load" => Instruction::Load(parse_reg(value.trim())),
-            "store" => Instruction::Store(parse_reg(value.trim())),
-            "print" => Instruction::Print,
-            "exit" => Instruction::Exit,
-            _ => panic!("syntax error: unknown instruction: {}", s)
+            "noop" => Ok(Instruction::Noop),
+            "push" => match Value::parse(value.trim()) {
+                Ok(v) => Ok(Instruction::Push(v)),
+                Err(e) => Err(e)
+            },
+            "pop" => Ok(Instruction::Pop),
+            "dump" => Ok(Instruction::Dump),
+            "clear" => Ok(Instruction::Clear),
+            "dup" => Ok(Instruction::Dup),
+            "swap" => Ok(Instruction::Swap),
+            "assert" => match Value::parse(value.trim()) {
+                Ok(v) => Ok(Instruction::Assert(v)),
+                Err(e) => Err(e)
+            },
+            "add" => Ok(Instruction::Add),
+            "sub" => Ok(Instruction::Sub),
+            "mul" => Ok(Instruction::Mul),
+            "div" => Ok(Instruction::Div),
+            "mod" => Ok(Instruction::Mod),
+            "load" => match parse_reg(value.trim()) {
+                Ok(v) => Ok(Instruction::Load(v)),
+                Err(e) => Err(e)
+            },
+            "store" => match parse_reg(value.trim()) {
+                Ok(v) => Ok(Instruction::Store(v)),
+                Err(e) => Err(e)
+            },
+            "print" => Ok(Instruction::Print),
+            "exit" => Ok(Instruction::Exit),
+            _ => Err(format!("syntax error: unknown instruction: {}", s))
         }
     }
 }
 
-fn parse_reg(s: &str) -> usize {
+fn parse_reg(s: &str) -> result::Result<usize, String> {
     match Value::parse(s) {
-        Value::Int8(v) => {
-            if v < 0 || v > 15 {
-                panic!("invalid register {}", s)
+        Ok(v) => match v {
+            Value::Int8(v) => {
+                if v < 0 || v > 15 {
+                    return Err(format!("invalid register {}", s));
+                }
+                Ok(v as usize)
             }
-            v as usize
+            other => Err(format!("invalid value for register: {}", other))
         }
-        other => panic!("invalid value for register: {}", other)
+        Err(e) => Err(e)
     }
 }

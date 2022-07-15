@@ -2,6 +2,7 @@ use bigdecimal::{BigDecimal, FromPrimitive};
 
 use std::fmt::{Debug, Display, Formatter, Result};
 use std::ops::{Add, Div, Mul, Rem, Sub};
+use std::result;
 
 // Remark 1: unfortunately Value can't be Copy-able because BigDecimal is not Copy-able itself. So we can only rely on Clone. This make things more difficult as we will need to manage lifetime of Values...
 // Remark 2: Eq would have been a good candidate, but unfortunately f32 does not implement Eq. Impact is minimal though
@@ -42,40 +43,40 @@ impl Debug for Value {
 }
 
 impl Value {
-    pub fn parse(s: &str) -> Value {
+    pub fn parse(s: &str) -> result::Result<Value, String> {
         match (s.find('('), s.find(')')) {
             (Some(a), Some(b)) => {
                 let first_token = s[..a].trim();
                 let second_token = s[a + 1..b].trim();
                 match first_token {
                     "int8" => match second_token.parse::<i8>() {
-                        Ok(v) => Value::Int8(v),
-                        Err(_) => panic!("syntax error: illegal int8: {}", s),
+                        Ok(v) => Ok(Value::Int8(v)),
+                        Err(_) => Err(format!("syntax error: illegal int8: {}", s)),
                     },
                     "int16" => match second_token.parse::<i16>() {
-                        Ok(v) => Value::Int16(v),
-                        Err(_) => panic!("syntax error: illegal int16: {}", s),
+                        Ok(v) => Ok(Value::Int16(v)),
+                        Err(_) => Err(format!("syntax error: illegal int16: {}", s)),
                     },
                     "int32" => match second_token.parse::<i32>() {
-                        Ok(v) => Value::Int32(v),
-                        Err(_) => panic!("syntax error: illegal int32: {}", s),
+                        Ok(v) => Ok(Value::Int32(v)),
+                        Err(_) => Err(format!("syntax error: illegal int32: {}", s)),
                     },
                     "float" => match second_token.parse::<f32>() {
-                        Ok(v) => Value::Float(v),
-                        Err(_) => panic!("syntax error: illegal float: {}", s),
+                        Ok(v) => Ok(Value::Float(v)),
+                        Err(_) => Err(format!("syntax error: illegal float: {}", s)),
                     },
                     "double" => match second_token.parse::<f64>() {
-                        Ok(v) => Value::Double(v),
-                        Err(_) => panic!("syntax error: illegal double: {}", s),
+                        Ok(v) => Ok(Value::Double(v)),
+                        Err(_) => Err(format!("syntax error: illegal double: {}", s)),
                     },
                     "bigdecimal" => match second_token.parse::<BigDecimal>() {
-                        Ok(v) => Value::BigDecimal(v),
-                        Err(_) => panic!("syntax error: illegal bigdecimal: {}", s),
+                        Ok(v) => Ok(Value::BigDecimal(v)),
+                        Err(_) => Err(format!("syntax error: illegal bigdecimal: {}", s)),
                     },
-                    _ => panic!("syntax error: unknown value type: {}", s)
+                    _ => Err(format!("syntax error: unknown value type: {}", s))
                 }
             }
-            _ => panic!("syntax error: missing parenthesis: {}", s),
+            _ => Err(format!("syntax error: missing parenthesis: {}", s)),
         }
     }
 }
