@@ -1,4 +1,6 @@
 use std::collections::hash_map::HashMap;
+use std::process::ExitCode;
+use std::result;
 
 use crate::process::Process;
 use crate::program::Program;
@@ -24,13 +26,21 @@ impl VM {
         self.last_pid
     }
 
-    pub fn run_process(&mut self, pid: usize) {
+    pub fn run_process(&mut self, pid: usize) -> result::Result<ExitCode, String> {
         match self.processes.get_mut(&pid) {
-            Some(v) => {
-                while v.run(VM_RUN_CYCLES) {};
-                self.processes.remove(&pid);
+            None => Err(format!("process ID does not exists: {}", pid)),
+            Some(p) => loop {
+                match p.run(VM_RUN_CYCLES) {
+                    Ok(r) => if r == false {
+                        self.processes.remove(&pid);
+                        return Ok(ExitCode::SUCCESS);
+                    },
+                    Err(e) => {
+                        self.processes.remove(&pid);
+                        return Err(e);
+                    }
+                }
             }
-            None => panic!("unknown process ID")
         }
     }
 }

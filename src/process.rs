@@ -1,4 +1,5 @@
 use std::cmp::min;
+use std::result;
 
 use crate::instruction::Instruction;
 use crate::program::Program;
@@ -32,13 +33,13 @@ impl Process {
         }
     }
 
-    pub fn run(&mut self, count: usize) -> bool {
+    pub fn run(&mut self, count: usize) -> result::Result<bool, String> {
         // Error checking
         if count == 0 {
-            panic!("no cycles given for process to run")
+            return Err(format!("no cycles given for process to run"));
         }
         if self.state.ip == self.program.len() {
-            panic!("process reached end of program instructions without exiting")
+            return Err(format!("process reached end of program instructions without exiting"));
         }
 
         // Compute the instruction range to execute = from ip to min(program_len, ip+count)
@@ -47,13 +48,13 @@ impl Process {
         // Execute each instruction in the range
         for instruction in exec_instructions {
             if self.state.exited {
-                panic!("process attempted to run an instruction past after having exited")
+                return Err(format!("process attempted to run an instruction past after having exited"));
             }
             match instruction {
                 Instruction::Noop => {}
                 Instruction::Push(v) => self.state.stack.push(v.clone()),
                 Instruction::Pop => match self.state.stack.pop() {
-                    None => panic!("stack underflow - case 1"),
+                    None => return Err(format!("stack underflow - pop")),
                     Some(_) => {} // already pop'ed in the match clause
                 },
                 Instruction::Dump => for v in self.state.stack.iter().rev() {
@@ -61,7 +62,7 @@ impl Process {
                 },
                 Instruction::Clear => self.state.stack.clear(),
                 Instruction::Dup => match self.state.stack.pop() {
-                    None => panic!("stack underflow - case 2"),
+                    None => return Err(format!("stack underflow - dup")),
                     Some(v) => {
                         self.state.stack.push(v.clone());
                         self.state.stack.push(v);
@@ -72,59 +73,59 @@ impl Process {
                         self.state.stack.push(v1);
                         self.state.stack.push(v2);
                     }
-                    _ => panic!("stack underflow - case 3"),
+                    _ => return Err(format!("stack underflow - swap")),
                 },
                 Instruction::Assert(v1) => match self.state.stack.last() {
-                    None => panic!("stack underflow"),
+                    None => return Err(format!("stack underflow - assert")),
                     Some(v2) => if !(v1 == v2) {
-                        panic!("assertion failed: {:?} != {:?}", v1, v2)
+                        return Err(format!("assertion failed: {:?} != {:?}", v1, v2));
                     },
                 },
                 Instruction::Add => match (self.state.stack.pop(), self.state.stack.pop()) {
                     (Some(v1), Some(v2)) => self.state.stack.push(v1 + v2),
-                    _ => panic!("stack underflow - case 4"),
+                    _ => return Err(format!("stack underflow - add")),
                 },
                 Instruction::Mul => match (self.state.stack.pop(), self.state.stack.pop()) {
                     (Some(v1), Some(v2)) => self.state.stack.push(v1 * v2),
-                    _ => panic!("stack underflow - case 5"),
+                    _ => return Err(format!("stack underflow - mul")),
                 },
                 Instruction::Sub => match (self.state.stack.pop(), self.state.stack.pop()) {
                     (Some(v1), Some(v2)) => self.state.stack.push(v2 - v1),
-                    _ => panic!("stack underflow - case 5"),
+                    _ => return Err(format!("stack underflow - sub")),
                 },
                 Instruction::Div => match (self.state.stack.pop(), self.state.stack.pop()) {
                     (Some(v1), Some(v2)) => self.state.stack.push(v2 / v1),
-                    _ => panic!("stack underflow - case 5"),
+                    _ => return Err(format!("stack underflow - div")),
                 },
                 Instruction::Mod => match (self.state.stack.pop(), self.state.stack.pop()) {
                     (Some(v1), Some(v2)) => self.state.stack.push(v2 % v1),
-                    _ => panic!("stack underflow - case 5"),
+                    _ => return Err(format!("stack underflow - mod")),
                 },
                 Instruction::Load(v) => match &self.state.registers[*v] {
-                    None => panic!("load: register is empty: {}", v),
+                    None => return Err(format!("load: register is empty: {}", v)),
                     Some(v) => self.state.stack.push(v.clone()),
                 },
                 Instruction::Store(v) => match self.state.stack.pop() {
-                    None => panic!("stack underflow - case 9"),
+                    None => return Err(format!("stack underflow - store")),
                     val => self.state.registers[*v] = val,
                 },
                 Instruction::Print => match self.state.stack.last() {
-                    None => panic!("stack underflow - case 10"),
-                    Some(v) => match *v {                       // Why this works ??? Normally, &Value can't be dereferenced. Even the IDE complains, but the compiler is OK...
+                    None => return Err(format!("stack underflow - print")),
+                    Some(v) => match v {
                         Value::Int8(v) => {
-                            let c = v as u8;
+                            let c = *v as u8;
                             match c.is_ascii() {
-                                false => panic!("value is not ascii char: {}", c),
+                                false => return Err(format!("value is not ascii char: {}", c)),
                                 true => println!("{}", char::from(c))
                             }
                         }
-                        _ => panic!("value is not int8: {:?}", v)
+                        _ => return Err(format!("value is not int8: {:?}", v))
                     },
                 },
                 Instruction::Exit => self.state.exited = true,
             }
             self.state.ip = self.state.ip + 1;
         }
-        !self.state.exited
+        Ok(!self.state.exited)
     }
 }

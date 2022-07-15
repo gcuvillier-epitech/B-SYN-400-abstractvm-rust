@@ -1,6 +1,5 @@
 use program::compile_asm;
 use std::env;
-use std::panic;
 use std::process::ExitCode;
 use vm::VM;
 
@@ -18,21 +17,21 @@ fn main() -> ExitCode {
         return ExitCode::from(84);
     }
 
-    match compile_asm(args[1].as_str()) {
+    let mut vm: VM = VM::new();
+
+    let ret_code = match compile_asm(args[1].as_str()) {
         Ok(prog) => {
-            let ret_code = panic::catch_unwind(|| {
-                let mut vm: VM = VM::new();
-                let pid = vm.load_program(prog);
-                vm.run_process(pid)
-            });
-            return match ret_code.is_ok() {
-                true => ExitCode::SUCCESS,
-                false => ExitCode::from(84)
-            };
+            let pid = vm.load_program(prog);
+            vm.run_process(pid)
         }
+        Err(e) => Err(e)
+    };
+
+    match ret_code {
+        Ok(_) => ExitCode::SUCCESS,
         Err(e) => {
             eprintln!("{}", e);
-            return ExitCode::from(84);
+            ExitCode::from(84)
         }
     }
 }
