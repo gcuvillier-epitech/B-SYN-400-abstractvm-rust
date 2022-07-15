@@ -3,22 +3,8 @@ use bigdecimal::{BigDecimal, FromPrimitive};
 use std::fmt::{Debug, Display, Formatter, Result};
 use std::ops::{Add, Div, Mul, Rem, Sub};
 
-macro_rules! apply_operator {
-    ($a:ident, $b:ident, $c:tt) => {
-        match ($a, $b) {
-            (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg1 $c arg2),
-            (Value::Int16(arg1), Value::Int16(arg2)) => Value::Int16(arg1 $c arg2),
-            (Value::Int32(arg1), Value::Int32(arg2)) => Value::Int32(arg1 $c arg2),
-            (Value::Float(arg1), Value::Float(arg2)) => Value::Float(arg1 $c arg2),
-            (Value::Double(arg1), Value::Double(arg2)) => Value::Double(arg1 $c arg2),
-            (Value::BigDecimal(arg1), Value::BigDecimal(arg2)) => Value::BigDecimal(arg1 $c arg2),
-            _ => panic!("internal error: unmatched conversion")
-        }
-    }
-}
-
-// Remark 1: unfortunately Value can't be Copy-able because BigDecimal is not Copy-able itself. So we can only rely on Clone. This make things quite more difficult as we will need to manage lifetime of Values...
-// Remark 2: Eq would have been a good candidate, but unfortunatelly f32 does not implement Eq. Impact is minimal though
+// Remark 1: unfortunately Value can't be Copy-able because BigDecimal is not Copy-able itself. So we can only rely on Clone. This make things more difficult as we will need to manage lifetime of Values...
+// Remark 2: Eq would have been a good candidate, but unfortunately f32 does not implement Eq. Impact is minimal though
 #[derive(Clone, PartialEq)]
 pub enum Value {
     Int8(i8),
@@ -56,63 +42,6 @@ impl Debug for Value {
 }
 
 impl Value {
-    pub fn is_zero(&self) -> bool {
-        match self {
-            Value::Int8(arg) => *arg == 0,
-            Value::Int16(arg) => *arg == 0,
-            Value::Int32(arg) => *arg == 0,
-            Value::Float(arg) => *arg == 0.0,
-            Value::Double(arg) => *arg == 0.0,
-            Value::BigDecimal(arg) => *arg == BigDecimal::from_f64(0.0).unwrap(),
-        }
-    }
-
-    pub fn promote_to(self, other: &Value) -> Value {
-        match self {
-            Value::Int8(arg1) => match other {
-                Value::Int8(_) => Value::Int8(arg1),
-                Value::Int16(_) => Value::Int16(arg1 as i16),
-                Value::Int32(_) => Value::Int32(arg1 as i32),
-                Value::Float(_) => Value::Float(arg1 as f32),
-                Value::Double(_) => Value::Double(arg1 as f64),
-                Value::BigDecimal(_) => Value::BigDecimal(BigDecimal::from_i8(arg1).unwrap()),
-            },
-            Value::Int16(arg1) => match other {
-                Value::Int8(_) => Value::Int16(arg1 as i16),
-                Value::Int16(_) => Value::Int16(arg1),
-                Value::Int32(_) => Value::Int32(arg1 as i32),
-                Value::Float(_) => Value::Float(arg1 as f32),
-                Value::Double(_) => Value::Double(arg1 as f64),
-                Value::BigDecimal(_) => Value::BigDecimal(BigDecimal::from_i16(arg1).unwrap()),
-            },
-            Value::Int32(arg1) => match other {
-                Value::Int8(_) => Value::Int32(arg1 as i32),
-                Value::Int16(_) => Value::Int32(arg1 as i32),
-                Value::Int32(_) => Value::Int32(arg1),
-                Value::Float(_) => Value::Float(arg1 as f32),
-                Value::Double(_) => Value::Double(arg1 as f64),
-                Value::BigDecimal(_) => Value::BigDecimal(BigDecimal::from_i32(arg1).unwrap()),
-            },
-            Value::Float(arg1) => match other {
-                Value::Int8(_) => Value::Float(arg1 as f32),
-                Value::Int16(_) => Value::Float(arg1 as f32),
-                Value::Int32(_) => Value::Float(arg1 as f32),
-                Value::Float(_) => Value::Float(arg1),
-                Value::Double(_) => Value::Double(arg1 as f64),
-                Value::BigDecimal(_) => Value::BigDecimal(BigDecimal::from_f32(arg1).unwrap()),
-            },
-            Value::Double(arg1) => match other {
-                Value::Int8(_) => Value::Double(arg1 as f64),
-                Value::Int16(_) => Value::Double(arg1 as f64),
-                Value::Int32(_) => Value::Double(arg1 as f64),
-                Value::Float(_) => Value::Double(arg1 as f64),
-                Value::Double(_) => Value::Double(arg1),
-                Value::BigDecimal(_) => Value::BigDecimal(BigDecimal::from_f64(arg1).unwrap()),
-            },
-            Value::BigDecimal(arg1) => Value::BigDecimal(arg1),
-        }
-    }
-
     pub fn parse(s: &str) -> Value {
         match (s.find('('), s.find(')')) {
             (Some(a), Some(b)) => {
@@ -151,13 +80,67 @@ impl Value {
     }
 }
 
+
+macro_rules! apply_operator {
+    ($a:ident, $b:ident, $c:tt) => {
+        match $a {
+            Value::Int8(arg1) => match $b {
+                Value::Int8(arg2) => Value::Int8(arg1 $c arg2),
+                Value::Int16(arg2) => Value::Int16(arg1 as i16 $c arg2),
+                Value::Int32(arg2) => Value::Int32(arg1 as i32 $c arg2),
+                Value::Float(arg2) => Value::Float(arg1 as f32 $c arg2),
+                Value::Double(arg2) => Value::Double(arg1 as f64 $c arg2),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_i8(arg1).unwrap() $c arg2),
+            },
+            Value::Int16(arg1) => match $b {
+                Value::Int8(arg2) => Value::Int16(arg1 $c arg2 as i16),
+                Value::Int16(arg2) => Value::Int16(arg1 $c arg2),
+                Value::Int32(arg2) => Value::Int32(arg1 as i32 $c arg2),
+                Value::Float(arg2) => Value::Float(arg1 as f32 $c arg2),
+                Value::Double(arg2) => Value::Double(arg1 as f64 $c arg2),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_i16(arg1).unwrap() $c arg2),
+            },
+            Value::Int32(arg1) => match $b {
+                Value::Int8(arg2) => Value::Int32(arg1 $c arg2 as i32),
+                Value::Int16(arg2) => Value::Int32(arg1 $c arg2 as i32),
+                Value::Int32(arg2) => Value::Int32(arg1 $c arg2),
+                Value::Float(arg2) => Value::Float(arg1 as f32 $c arg2),
+                Value::Double(arg2) => Value::Double(arg1 as f64 $c arg2),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_i32(arg1).unwrap() $c arg2),
+            },
+            Value::Float(arg1) => match $b {
+                Value::Int8(arg2) => Value::Float(arg1 $c arg2 as f32),
+                Value::Int16(arg2) => Value::Float(arg1 $c arg2 as f32),
+                Value::Int32(arg2) => Value::Float(arg1 $c arg2 as f32),
+                Value::Float(arg2) => Value::Float(arg1 $c arg2),
+                Value::Double(arg2) => Value::Double(arg1 as f64 $c arg2),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_f32(arg1).unwrap() $c arg2),
+            },
+            Value::Double(arg1) => match $b {
+                Value::Int8(arg2) => Value::Double(arg1 $c arg2 as f64),
+                Value::Int16(arg2) => Value::Double(arg1 $c arg2 as f64),
+                Value::Int32(arg2) => Value::Double(arg1 $c arg2 as f64),
+                Value::Float(arg2) => Value::Double(arg1 $c arg2 as f64),
+                Value::Double(arg2) => Value::Double(arg1 $c arg2 as f64),
+                Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_f64(arg1).unwrap() $c arg2),
+            },
+            Value::BigDecimal(arg1) => match $b {
+                Value::Int8(arg2) => Value::BigDecimal(arg1 $c BigDecimal::from_i8(arg2).unwrap()),
+                Value::Int16(arg2) => Value::BigDecimal(arg1 $c BigDecimal::from_i16(arg2).unwrap()),
+                Value::Int32(arg2) => Value::BigDecimal(arg1 $c BigDecimal::from_i32(arg2).unwrap()),
+                Value::Float(arg2) => Value::BigDecimal(arg1 $c BigDecimal::from_f32(arg2).unwrap()),
+                Value::Double(arg2) => Value::BigDecimal(arg1 $c BigDecimal::from_f64(arg2).unwrap()),
+                Value::BigDecimal(arg2) => Value::BigDecimal(arg1 $c arg2),
+            },
+        }
+    }
+}
+
 impl Add for Value {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        let a = self.promote_to(&other);
-        let b = other.promote_to(&a);
-        apply_operator!(a,b,+)
+        apply_operator!(self,other,+)
     }
 }
 
@@ -165,9 +148,7 @@ impl Sub for Value {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
-        let a = self.promote_to(&other);
-        let b = other.promote_to(&a);
-        apply_operator!(a,b,-)
+        apply_operator!(self,other,-)
     }
 }
 
@@ -175,9 +156,7 @@ impl Mul for Value {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self {
-        let a = self.promote_to(&other);
-        let b = other.promote_to(&a);
-        apply_operator!(a,b,-)
+        apply_operator!(self,other,*)
     }
 }
 
@@ -185,12 +164,7 @@ impl Div for Value {
     type Output = Self;
 
     fn div(self, other: Self) -> Self {
-        let a = self.promote_to(&other);
-        let b = other.promote_to(&a);
-        if b.is_zero() {
-            panic!("division by zero")
-        }
-        apply_operator!(a,b,/)
+        apply_operator!(self,other,/) // division by zero already handled by / natively
     }
 }
 
@@ -198,11 +172,6 @@ impl Rem for Value {
     type Output = Self;
 
     fn rem(self, other: Self) -> Self {
-        let a = self.promote_to(&other);
-        let b = other.promote_to(&a);
-        if b.is_zero() {
-            panic!("modulo by zero")
-        }
-        apply_operator!(a,b,%)
+        apply_operator!(self,other,%) // modulo by zero already handled by % natively
     }
 }
