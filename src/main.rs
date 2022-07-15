@@ -1,28 +1,29 @@
-use program::*;
+use program::compile_asm;
+use std::env;
 use std::panic;
-use value::*;
-use vm::*;
+use vm::VM;
 
 mod opcode;
 mod value;
 mod instruction;
-mod stack;
 mod program;
 mod vm;
 mod process;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        eprintln!("Error: missing argument");
+        eprintln!("Synopsys: abstract_vm <file_name>");
+        std::process::exit(84);
+    }
+
     let result = panic::catch_unwind(|| {
-        let p: Program = compile_asm("./toto.avm");
+        let p = compile_asm(args[1].as_str());
+
         let mut vm: VM = VM::new();
-
-        let pid = vm.load_program(&p);
-
+        let pid = vm.load_program(p);
         vm.run_process(pid);
-
-        let a = Value::Int8(0);
-        let b = Value::Int16(0);
-        println!("{}", a == b);
     });
     if result.is_ok() {
         std::process::exit(0);

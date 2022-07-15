@@ -15,11 +15,11 @@ pub fn compile_asm(filename: &str) -> Program {
                     Err(why) => panic!("couldn't read line: {}", why),
                     Ok(line) => {
                         let line = match line.find(';') {
-                            Some(a) => &line.as_str()[..a],
-                            None => line.as_str()
-                        }.trim();
+                            Some(a) => String::from(&line[..a]),
+                            None => line
+                        }.trim().replace("\t", " ");
                         if line.len() > 0 {
-                            prog.push(Instruction::parse(line));
+                            prog.push(Instruction::parse(line.as_str()));
                         }
                     }
                 };
