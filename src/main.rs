@@ -28,7 +28,7 @@ fn main() -> ExitCode {
     };
 
     match ret_code {
-        Ok(_) => ExitCode::SUCCESS,
+        Ok(code) => code,   // should be ExitCode::SUCCESS, or the exit code given by the program that have been run
         Err(e) => {
             eprintln!("{}", e);
             ExitCode::from(84)

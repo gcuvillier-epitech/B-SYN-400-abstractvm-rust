@@ -1,4 +1,5 @@
 use std::cmp::min;
+use std::panic;
 use std::result;
 
 use crate::instruction::Instruction;
@@ -82,23 +83,38 @@ impl Process {
                     },
                 },
                 Instruction::Add => match (self.state.stack.pop(), self.state.stack.pop()) {
-                    (Some(v1), Some(v2)) => self.state.stack.push(v1 + v2),
+                    (Some(v1), Some(v2)) => match panic::catch_unwind(|| { v1 + v2 }) {
+                        Ok(v) => self.state.stack.push(v),
+                        Err(_) => return Err(format!("Arithmetic panic (see panic message) - add")),    // This is useless to catch the cause, as it is an Any { ... } on arithmetic panics
+                    }
                     _ => return Err(format!("stack underflow - add")),
                 },
                 Instruction::Mul => match (self.state.stack.pop(), self.state.stack.pop()) {
-                    (Some(v1), Some(v2)) => self.state.stack.push(v1 * v2),
+                    (Some(v1), Some(v2)) => match panic::catch_unwind(|| { v1 * v2 }) {
+                        Ok(v) => self.state.stack.push(v),
+                        Err(_) => return Err(format!("Arithmetic panic (see panic message) - mul")),
+                    },
                     _ => return Err(format!("stack underflow - mul")),
                 },
                 Instruction::Sub => match (self.state.stack.pop(), self.state.stack.pop()) {
-                    (Some(v1), Some(v2)) => self.state.stack.push(v2 - v1),
+                    (Some(v1), Some(v2)) => match panic::catch_unwind(|| { v2 - v1 }) {
+                        Ok(v) => self.state.stack.push(v),
+                        Err(_) => return Err(format!("Arithmetic panic (see panic message) - sub")),
+                    }
                     _ => return Err(format!("stack underflow - sub")),
                 },
                 Instruction::Div => match (self.state.stack.pop(), self.state.stack.pop()) {
-                    (Some(v1), Some(v2)) => self.state.stack.push(v2 / v1),
+                    (Some(v1), Some(v2)) => match panic::catch_unwind(|| { v2 / v1 }) {
+                        Ok(v) => self.state.stack.push(v),
+                        Err(_) => return Err(format!("Arithmetic panic (see panic message) - div")),
+                    }
                     _ => return Err(format!("stack underflow - div")),
                 },
                 Instruction::Mod => match (self.state.stack.pop(), self.state.stack.pop()) {
-                    (Some(v1), Some(v2)) => self.state.stack.push(v2 % v1),
+                    (Some(v1), Some(v2)) => match panic::catch_unwind(|| { v2 % v1 }) {
+                        Ok(v) => self.state.stack.push(v),
+                        Err(_) => return Err(format!("Arithmetic panic (see panic message) - mod")),
+                    }
                     _ => return Err(format!("stack underflow - mod")),
                 },
                 Instruction::Load(v) => match &self.state.registers[*v] {

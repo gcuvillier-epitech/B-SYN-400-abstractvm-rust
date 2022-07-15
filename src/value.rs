@@ -5,7 +5,7 @@ use std::ops::{Add, Div, Mul, Rem, Sub};
 use std::result;
 
 // Remark 1: unfortunately Value can't be Copy-able because BigDecimal is not Copy-able itself. So we can only rely on Clone. This make things more difficult as we will need to manage lifetime of Values...
-// Remark 2: Eq would have been a good candidate, but unfortunately f32 does not implement Eq. Impact is minimal though
+// Remark 2: Eq would have been a good candidate, but unfortunately f32 does not implement Eq. So we relu p, PartialEq only. Impact is minimal though
 #[derive(Clone, PartialEq)]
 pub enum Value {
     Int8(i8),
@@ -81,7 +81,15 @@ impl Value {
     }
 }
 
+/////////////////////////////
+// Operators implementations
+/////////////////////////////
 
+// Note: all arithmetic errors (div/mod by zero, overflow, underflow) are already handled by Rust
+// through panics. We just have to catch them before doing the operation if needed (for example, to
+// return 84 in case of such panic)
+
+// The dreaded "double-match-NxN" apply-operator, to match every possible combination of types
 macro_rules! apply_operator {
     ($a:ident, $b:ident, $c:tt) => {
         match $a {
@@ -137,6 +145,7 @@ macro_rules! apply_operator {
     }
 }
 
+
 impl Add for Value {
     type Output = Self;
 
@@ -165,7 +174,7 @@ impl Div for Value {
     type Output = Self;
 
     fn div(self, other: Self) -> Self {
-        apply_operator!(self,other,/) // division by zero already handled by / natively
+        apply_operator!(self,other,/)
     }
 }
 
@@ -173,6 +182,6 @@ impl Rem for Value {
     type Output = Self;
 
     fn rem(self, other: Self) -> Self {
-        apply_operator!(self,other,%) // modulo by zero already handled by % natively
+        apply_operator!(self,other,%)
     }
 }
