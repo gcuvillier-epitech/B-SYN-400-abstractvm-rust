@@ -3,7 +3,6 @@ use std::env;
 use std::panic;
 use vm::VM;
 
-mod opcode;
 mod value;
 mod instruction;
 mod program;
