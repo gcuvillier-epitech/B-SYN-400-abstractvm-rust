@@ -3,6 +3,20 @@ use bigdecimal::{BigDecimal, FromPrimitive};
 use std::fmt::{Debug, Display, Formatter, Result};
 use std::ops::{Add, Div, Mul, Rem, Sub};
 
+macro_rules! apply_operator {
+    ($a:ident, $b:ident, $c:tt) => {
+        match ($a, $b) {
+            (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg1 $c arg2),
+            (Value::Int16(arg1), Value::Int16(arg2)) => Value::Int16(arg1 $c arg2),
+            (Value::Int32(arg1), Value::Int32(arg2)) => Value::Int32(arg1 $c arg2),
+            (Value::Float(arg1), Value::Float(arg2)) => Value::Float(arg1 $c arg2),
+            (Value::Double(arg1), Value::Double(arg2)) => Value::Double(arg1 $c arg2),
+            (Value::BigDecimal(arg1), Value::BigDecimal(arg2)) => Value::BigDecimal(arg1 $c arg2),
+            _ => panic!("internal error: unmatched conversion")
+        }
+    }
+}
+
 // Remark 1: unfortunately Value can't be Copy-able because BigDecimal is not Copy-able itself. So we can only rely on Clone. This make things quite more difficult as we will need to manage lifetime of Values...
 // Remark 2: Eq would have been a good candidate, but unfortunatelly f32 does not implement Eq. Impact is minimal though
 #[derive(Clone, PartialEq)]
@@ -143,16 +157,7 @@ impl Add for Value {
     fn add(self, other: Self) -> Self {
         let a = self.promote_to(&other);
         let b = other.promote_to(&a);
-
-        match (a, b) {
-            (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg1 + arg2),
-            (Value::Int16(arg1), Value::Int16(arg2)) => Value::Int16(arg1 + arg2),
-            (Value::Int32(arg1), Value::Int32(arg2)) => Value::Int32(arg1 + arg2),
-            (Value::Float(arg1), Value::Float(arg2)) => Value::Float(arg1 + arg2),
-            (Value::Double(arg1), Value::Double(arg2)) => Value::Double(arg1 + arg2),
-            (Value::BigDecimal(arg1), Value::BigDecimal(arg2)) => Value::BigDecimal(arg1 + arg2),
-            _ => panic!("internal error: unmatched conversion")
-        }
+        apply_operator!(a,b,+)
     }
 }
 
@@ -162,16 +167,7 @@ impl Sub for Value {
     fn sub(self, other: Self) -> Self {
         let a = self.promote_to(&other);
         let b = other.promote_to(&a);
-
-        match (a, b) {
-            (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg1 - arg2),
-            (Value::Int16(arg1), Value::Int16(arg2)) => Value::Int16(arg1 - arg2),
-            (Value::Int32(arg1), Value::Int32(arg2)) => Value::Int32(arg1 - arg2),
-            (Value::Float(arg1), Value::Float(arg2)) => Value::Float(arg1 - arg2),
-            (Value::Double(arg1), Value::Double(arg2)) => Value::Double(arg1 - arg2),
-            (Value::BigDecimal(arg1), Value::BigDecimal(arg2)) => Value::BigDecimal(arg1 - arg2),
-            _ => panic!("internal error: unmatched conversion")
-        }
+        apply_operator!(a,b,-)
     }
 }
 
@@ -181,16 +177,7 @@ impl Mul for Value {
     fn mul(self, other: Self) -> Self {
         let a = self.promote_to(&other);
         let b = other.promote_to(&a);
-
-        match (a, b) {
-            (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg1 * arg2),
-            (Value::Int16(arg1), Value::Int16(arg2)) => Value::Int16(arg1 * arg2),
-            (Value::Int32(arg1), Value::Int32(arg2)) => Value::Int32(arg1 * arg2),
-            (Value::Float(arg1), Value::Float(arg2)) => Value::Float(arg1 * arg2),
-            (Value::Double(arg1), Value::Double(arg2)) => Value::Double(arg1 * arg2),
-            (Value::BigDecimal(arg1), Value::BigDecimal(arg2)) => Value::BigDecimal(arg1 * arg2),
-            _ => panic!("internal error: unmatched conversion")
-        }
+        apply_operator!(a,b,-)
     }
 }
 
@@ -200,19 +187,10 @@ impl Div for Value {
     fn div(self, other: Self) -> Self {
         let a = self.promote_to(&other);
         let b = other.promote_to(&a);
-
         if b.is_zero() {
             panic!("division by zero")
         }
-        match (a, b) {
-            (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg2 / arg1),
-            (Value::Int16(arg1), Value::Int16(arg2)) => Value::Int16(arg2 / arg1),
-            (Value::Int32(arg1), Value::Int32(arg2)) => Value::Int32(arg2 / arg1),
-            (Value::Float(arg1), Value::Float(arg2)) => Value::Float(arg2 / arg1),
-            (Value::Double(arg1), Value::Double(arg2)) => Value::Double(arg2 / arg1),
-            (Value::BigDecimal(arg1), Value::BigDecimal(arg2)) => Value::BigDecimal(arg2 / arg1),
-            _ => panic!("internal error: unmatched conversion")
-        }
+        apply_operator!(a,b,/)
     }
 }
 
@@ -222,18 +200,9 @@ impl Rem for Value {
     fn rem(self, other: Self) -> Self {
         let a = self.promote_to(&other);
         let b = other.promote_to(&a);
-
         if b.is_zero() {
             panic!("modulo by zero")
         }
-        match (a, b) {
-            (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg2 % arg1),
-            (Value::Int16(arg1), Value::Int16(arg2)) => Value::Int16(arg2 % arg1),
-            (Value::Int32(arg1), Value::Int32(arg2)) => Value::Int32(arg2 % arg1),
-            (Value::Float(_), Value::Float(_)) => panic!("modulo on Float"),
-            (Value::Double(_), Value::Double(_)) => panic!("modulo on Double"),
-            (Value::BigDecimal(_), Value::BigDecimal(_)) => panic!("modulo on BigDecimal"),
-            _ => panic!("internal error: unmatched conversion")
-        }
+        apply_operator!(a,b,%)
     }
 }
