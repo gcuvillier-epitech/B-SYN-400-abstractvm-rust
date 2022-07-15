@@ -53,7 +53,7 @@ impl Value {
         }
     }
 
-    pub fn cast_to(self, other: &Value) -> Value {
+    pub fn promote_to(self, other: &Value) -> Value {
         match self {
             Value::Int8(arg1) => match other {
                 Value::Int8(_) => Value::Int8(arg1),
@@ -141,8 +141,8 @@ impl Add for Value {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        let a = self.cast_to(&other);
-        let b = other.cast_to(&a);
+        let a = self.promote_to(&other);
+        let b = other.promote_to(&a);
 
         match (a, b) {
             (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg1 + arg2),
@@ -160,8 +160,8 @@ impl Sub for Value {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
-        let a = self.cast_to(&other);
-        let b = other.cast_to(&a);
+        let a = self.promote_to(&other);
+        let b = other.promote_to(&a);
 
         match (a, b) {
             (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg1 - arg2),
@@ -179,8 +179,8 @@ impl Mul for Value {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self {
-        let a = self.cast_to(&other);
-        let b = other.cast_to(&a);
+        let a = self.promote_to(&other);
+        let b = other.promote_to(&a);
 
         match (a, b) {
             (Value::Int8(arg1), Value::Int8(arg2)) => Value::Int8(arg1 * arg2),
@@ -198,8 +198,8 @@ impl Div for Value {
     type Output = Self;
 
     fn div(self, other: Self) -> Self {
-        let a = self.cast_to(&other);
-        let b = other.cast_to(&a);
+        let a = self.promote_to(&other);
+        let b = other.promote_to(&a);
 
         if b.is_zero() {
             panic!("division by zero")
@@ -220,8 +220,8 @@ impl Rem for Value {
     type Output = Self;
 
     fn rem(self, other: Self) -> Self {
-        let a = self.cast_to(&other);
-        let b = other.cast_to(&a);
+        let a = self.promote_to(&other);
+        let b = other.promote_to(&a);
 
         if b.is_zero() {
             panic!("modulo by zero")
