@@ -31,16 +31,18 @@ impl VM {
             None => Err(format!("process ID does not exists: {}", pid)),
             Some(p) => loop {
                 match p.run(VM_RUN_CYCLES) {
-                    Ok(r) => if r == false {
-                        self.processes.remove(&pid);
-                        return Ok(ExitCode::SUCCESS);
-                    },
+                    Ok(r) => {
+                        if r == false {
+                            self.processes.remove(&pid);
+                            return Ok(ExitCode::SUCCESS);
+                        }
+                    }
                     Err(e) => {
                         self.processes.remove(&pid);
                         return Err(e);
                     }
                 }
-            }
+            },
         }
     }
 }

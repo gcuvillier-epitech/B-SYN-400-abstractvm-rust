@@ -17,12 +17,14 @@ pub fn compile_asm(filename: &str) -> result::Result<Program, String> {
                     Ok(line) => {
                         let line = match line.find(';') {
                             Some(a) => String::from(&line[..a]),
-                            None => line
-                        }.trim().replace("\t", " ");
+                            None => line,
+                        }
+                        .trim()
+                        .replace("\t", " ");
                         if line.len() > 0 {
                             match Instruction::parse(line.as_str()) {
                                 Ok(v) => prog.push(v),
-                                Err(v) => return Err(v)
+                                Err(v) => return Err(v),
                             }
                         }
                     }

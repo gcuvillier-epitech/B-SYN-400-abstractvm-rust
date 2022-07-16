@@ -1,8 +1,8 @@
-use bigdecimal::{BigDecimal, FromPrimitive};
-
 use std::fmt::{Debug, Display, Formatter, Result};
 use std::ops::{Add, Div, Mul, Rem, Sub};
 use std::result;
+
+use bigdecimal::{BigDecimal, FromPrimitive};
 
 // Remark 1: unfortunately Value can't be Copy-able because BigDecimal is not Copy-able itself.
 // So we can only rely on Clone. This make things more difficult as we will need to manage lifetime of Values...
@@ -75,7 +75,7 @@ impl Value {
                         Ok(v) => Ok(Value::BigDecimal(v)),
                         Err(_) => Err(format!("syntax error: illegal bigdecimal: {}", s)),
                     },
-                    _ => Err(format!("syntax error: unknown value type: {}", s))
+                    _ => Err(format!("syntax error: unknown value type: {}", s)),
                 }
             }
             _ => Err(format!("syntax error: missing parenthesis: {}", s)),
@@ -146,7 +146,6 @@ macro_rules! apply_operator {
         }
     }
 }
-
 
 impl Add for Value {
     type Output = Self;

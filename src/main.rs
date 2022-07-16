@@ -1,13 +1,14 @@
-use program::compile_asm;
 use std::env;
 use std::process::ExitCode;
+
+use program::compile_asm;
 use vm::VM;
 
-mod value;
 mod instruction;
-mod program;
-mod vm;
 mod process;
+mod program;
+mod value;
+mod vm;
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -24,11 +25,11 @@ fn main() -> ExitCode {
             let pid = vm.load_program(prog);
             vm.run_process(pid)
         }
-        Err(e) => Err(e)
+        Err(e) => Err(e),
     };
 
     match ret_code {
-        Ok(code) => code,   // should be ExitCode::SUCCESS, or the exit code given by the program that have been run
+        Ok(code) => code, // should be ExitCode::SUCCESS, or the exit code given by the program that have been run
         Err(e) => {
             eprintln!("{}", e);
             ExitCode::from(84)

@@ -53,8 +53,7 @@ impl Debug for Instruction {
     }
 }
 
-impl Instruction
-{
+impl Instruction {
     pub fn parse(s: &str) -> result::Result<Instruction, String> {
         let first_offset = s.find(' ');
         let (opcode, value) = match first_offset {
@@ -65,7 +64,7 @@ impl Instruction
             "noop" => Ok(Instruction::Noop),
             "push" => match Value::parse(value.trim()) {
                 Ok(v) => Ok(Instruction::Push(v)),
-                Err(e) => Err(e)
+                Err(e) => Err(e),
             },
             "pop" => Ok(Instruction::Pop),
             "dump" => Ok(Instruction::Dump),
@@ -74,7 +73,7 @@ impl Instruction
             "swap" => Ok(Instruction::Swap),
             "assert" => match Value::parse(value.trim()) {
                 Ok(v) => Ok(Instruction::Assert(v)),
-                Err(e) => Err(e)
+                Err(e) => Err(e),
             },
             "add" => Ok(Instruction::Add),
             "sub" => Ok(Instruction::Sub),
@@ -83,15 +82,15 @@ impl Instruction
             "mod" => Ok(Instruction::Mod),
             "load" => match parse_reg(value.trim()) {
                 Ok(v) => Ok(Instruction::Load(v)),
-                Err(e) => Err(e)
+                Err(e) => Err(e),
             },
             "store" => match parse_reg(value.trim()) {
                 Ok(v) => Ok(Instruction::Store(v)),
-                Err(e) => Err(e)
+                Err(e) => Err(e),
             },
             "print" => Ok(Instruction::Print),
             "exit" => Ok(Instruction::Exit),
-            _ => Err(format!("syntax error: unknown instruction: {}", s))
+            _ => Err(format!("syntax error: unknown instruction: {}", s)),
         }
     }
 }
@@ -105,8 +104,8 @@ fn parse_reg(s: &str) -> result::Result<usize, String> {
                 }
                 Ok(v as usize)
             }
-            other => Err(format!("invalid value for register: {}", other))
-        }
-        Err(e) => Err(e)
+            other => Err(format!("invalid value for register: {}", other)),
+        },
+        Err(e) => Err(e),
     }
 }
