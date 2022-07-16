@@ -12,15 +12,18 @@ mod vm;
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
-        eprintln!("Error: missing argument");
-        eprintln!("Synopsys: abstract_vm <file_name>");
-        return ExitCode::from(84);
-    }
+    let filename = match &args[..] {
+        [ _ , f ] => f.as_str(),
+        _ => {
+            eprintln!("Error: missing argument");
+            eprintln!("Synopsys: abstract_vm <file_name>");
+            return ExitCode::from(84);
+        }
+    };
 
     let mut vm: VM = VM::new();
 
-    let ret_code = match compile_asm(args[1].as_str()) {
+    let ret_code = match compile_asm(filename) {
         Ok(prog) => {
             let pid = vm.load_program(prog);
             vm.run_process(pid)
