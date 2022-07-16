@@ -4,8 +4,10 @@ use std::fmt::{Debug, Display, Formatter, Result};
 use std::ops::{Add, Div, Mul, Rem, Sub};
 use std::result;
 
-// Remark 1: unfortunately Value can't be Copy-able because BigDecimal is not Copy-able itself. So we can only rely on Clone. This make things more difficult as we will need to manage lifetime of Values...
-// Remark 2: Eq would have been a good candidate, but unfortunately f32 does not implement Eq. So we relu p, PartialEq only. Impact is minimal though
+// Remark 1: unfortunately Value can't be Copy-able because BigDecimal is not Copy-able itself.
+// So we can only rely on Clone. This make things more difficult as we will need to manage lifetime of Values...
+// Remark 2: Eq would have been a good candidate, but unfortunately f32 does not implement Eq.
+// So we rely on PartialEq only. Impact is minimal though
 #[derive(Clone, PartialEq)]
 pub enum Value {
     Int8(i8),
