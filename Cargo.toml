@@ -3,7 +3,9 @@ name = "abstractvm"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 bigdecimal = "0.3.0"
+
+# enforce integer overflow checks on release mode
+[profile.release]
+overflow-checks = true
