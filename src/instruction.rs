@@ -58,7 +58,7 @@ impl Instruction {
         let first_offset = s.find(' ');
         let (opcode, value) = match first_offset {
             Some(v) => (&s[..v], &s[v + 1..]),
-            None => (s, s),
+            None => (s, ""),
         };
         match opcode {
             "noop" => Ok(Instruction::Noop),
