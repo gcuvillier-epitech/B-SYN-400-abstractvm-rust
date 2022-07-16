@@ -132,7 +132,7 @@ macro_rules! apply_operator {
                 Value::Int16(arg2) => Value::Double(arg1 $c arg2 as f64),
                 Value::Int32(arg2) => Value::Double(arg1 $c arg2 as f64),
                 Value::Float(arg2) => Value::Double(arg1 $c arg2 as f64),
-                Value::Double(arg2) => Value::Double(arg1 $c arg2 as f64),
+                Value::Double(arg2) => Value::Double(arg1 $c arg2),
                 Value::BigDecimal(arg2) => Value::BigDecimal(BigDecimal::from_f64(arg1).unwrap() $c arg2),
             },
             Value::BigDecimal(arg1) => match $b {
